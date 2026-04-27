@@ -26,9 +26,9 @@
         }
         h1 {
             text-align: center;
-            font-size: 28px;
+            font-size: 2rem;
             margin-bottom: 30px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
         .section {
             background: rgba(255,255,255,0.1);
@@ -37,14 +37,14 @@
             margin-bottom: 20px;
         }
         .section-title {
-            font-size: 18px;
+            font-size: 1.2rem;
             margin-bottom: 15px;
             color: #ffd700;
         }
         select, input[type="text"] {
             width: 100%;
             padding: 15px;
-            font-size: 16px;
+            font-size: 1.1rem;
             border: none;
             border-radius: 10px;
             margin-bottom: 10px;
@@ -52,53 +52,58 @@
         }
         .checkbox-group {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 15px;
         }
         .checkbox-item {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.2);
-            padding: 10px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .checkbox-item input {
-            margin-right: 8px;
-            width: 20px;
-            height: 20px;
-        }
-        .color-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
+            font-size: 1.1rem;
         }
-        .color-btn {
-            padding: 15px;
-            border: 3px solid transparent;
-            border-radius: 10px;
+        .checkbox-item input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
             cursor: pointer;
-            font-family: 'Jua', sans-serif;
-            font-size: 14px;
         }
-        .color-btn.selected {
-            border-color: #ffd700;
-        }
-        .start-btn {
+        .btn-start {
             width: 100%;
             padding: 20px;
-            font-size: 24px;
+            font-size: 1.5rem;
             background: linear-gradient(45deg, #ff6b6b, #ffd700);
             border: none;
             border-radius: 15px;
             color: white;
+            font-family: 'Black Han Sans', sans-serif;
             cursor: pointer;
-            font-family: 'Jua', sans-serif;
-            margin-top: 20px;
-            box-shadow: 0 5px 20px rgba(255,107,107,0.5);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
         }
-        .start-btn:active {
-            transform: scale(0.98);
+        .btn-start:hover {
+            transform: scale(1.05);
+        }
+        .btn-start:active {
+            transform: scale(0.95);
+        }
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .color-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            border: 3px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+        .color-btn.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 10px #ffd700;
         }
     </style>
 </head>
@@ -107,36 +112,31 @@
         <h1>📣 응원 문구 생성기</h1>
 
         <div class="section">
-            <div class="section-title">📝 문구 선택</div>
-            <select id="messageSelect">
-                <optgroup label="🤖 에듀테크AI(고) 분임">
-                    <option value="에듀테크AI(고) 분임 최고! 🏆">에듀테크AI(고) 분임 최고! 🏆</option>
-                    <option value="에듀테크AI(고) 분임이 짱이다! 💪">에듀테크AI(고) 분임이 짱이다! 💪</option>
-                    <option value="에듀테크AI(고) 분임 넘버원! 🥇">에듀테크AI(고) 분임 넘버원! 🥇</option>
-                    <option value="에듀테크AI(고) 우리가 최고! ⭐">에듀테크AI(고) 우리가 최고! ⭐</option>
-                </optgroup>
-                <optgroup label="🔢 수학 분임">
-                    <option value="수학 분임 최고! 🏆">수학 분임 최고! 🏆</option>
-                    <option value="수학 분임이 짱이다! 💪">수학 분임이 짱이다! 💪</option>
-                    <option value="수학 분임 넘버원! 🥇">수학 분임 넘버원! 🥇</option>
-                    <option value="수학 분임 우리가 최고! ⭐">수학 분임 우리가 최고! ⭐</option>
-                </optgroup>
-                <optgroup label="✏️ 직접 입력">
-                    <option value="custom">직접 입력하기</option>
-                </optgroup>
+            <div class="section-title">✏️ 응원 문구</div>
+            <select id="presetSelect">
+                <option value="">-- 문구 선택 --</option>
+                <option value="화이팅! 💪">화이팅! 💪</option>
+                <option value="최고! 🏆">최고! 🏆</option>
+                <option value="대박! 🎉">대박! 🎉</option>
+                <option value="파이팅! 🔥">파이팅! 🔥</option>
+                <option value="응원해요! ❤️">응원해요! ❤️</option>
+                <option value="할 수 있다! 💪">할 수 있다! 💪</option>
+                <option value="custom">직접 입력</option>
             </select>
-            <input type="text" id="customMessage" placeholder="직접 입력하세요..." style="display:none;">
+            <input type="text" id="customText" placeholder="직접 입력하세요..." style="display:none;">
         </div>
 
         <div class="section">
             <div class="section-title">🎨 배경색</div>
-            <div class="color-grid">
-                <button class="color-btn selected" data-color="#000000" style="background:#000000;color:white;">⬛ 검정</button>
-                <button class="color-btn" data-color="#dc3545" style="background:#dc3545;color:white;">🟥 빨강</button>
-                <button class="color-btn" data-color="#0d6efd" style="background:#0d6efd;color:white;">🟦 파랑</button>
-                <button class="color-btn" data-color="#198754" style="background:#198754;color:white;">🟩 초록</button>
-                <button class="color-btn" data-color="#6f42c1" style="background:#6f42c1;color:white;">🟪 보라</button>
-                <button class="color-btn" data-color="#ffffff" style="background:#ffffff;color:black;">⬜ 흰색</button>
+            <div class="color-options">
+                <button class="color-btn selected" data-color="#000000" style="background:#000000;"></button>
+                <button class="color-btn" data-color="#1a1a2e" style="background:#1a1a2e;"></button>
+                <button class="color-btn" data-color="#ff0000" style="background:#ff0000;"></button>
+                <button class="color-btn" data-color="#0000ff" style="background:#0000ff;"></button>
+                <button class="color-btn" data-color="#006400" style="background:#006400;"></button>
+                <button class="color-btn" data-color="#ff69b4" style="background:#ff69b4;"></button>
+                <button class="color-btn" data-color="#ffd700" style="background:#ffd700;"></button>
+                <button class="color-btn" data-color="#ffffff" style="background:#ffffff;"></button>
             </div>
         </div>
 
@@ -154,63 +154,92 @@
             <div class="section-title">✨ 효과</div>
             <div class="checkbox-group">
                 <label class="checkbox-item">
-                    <input type="checkbox" id="neonEffect"> 💡 네온싸인
+                    <input type="checkbox" id="neonEffect">
+                    <span>💡 네온싸인 효과</span>
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox" id="slideEffect"> 🎬 슬라이드
+                    <input type="checkbox" id="slideEffect">
+                    <span>🎬 슬라이드 효과</span>
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox" id="blinkEffect"> ⚡ 깜빡깜빡
+                    <input type="checkbox" id="blinkEffect">
+                    <span>⚡ 깜빡깜빡 효과</span>
                 </label>
             </div>
         </div>
 
-        <button class="start-btn" onclick="startCheer()">🚀 전체화면 시작!</button>
+        <button class="btn-start" onclick="startCheer()">🚀 전체화면 시작!</button>
     </div>
 
     <script>
+        let selectedColor = '#000000';
+
         // 페이지 로드 시 저장된 옵션 복원
         window.onload = function() {
-            const saved = {
-                selected: localStorage.getItem('cheer_selected'),
-                custom: localStorage.getItem('cheer_custom'),
-                bgcolor: localStorage.getItem('cheer_bgcolor'),
-                font: localStorage.getItem('cheer_font'),
-                neon: localStorage.getItem('cheer_neon'),
-                slide: localStorage.getItem('cheer_slide'),
-                blink: localStorage.getItem('cheer_blink')
-            };
-
-            if (saved.selected) {
-                document.getElementById('messageSelect').value = saved.selected;
-                if (saved.selected === 'custom') {
-                    document.getElementById('customMessage').style.display = 'block';
+            // 문구 복원
+            const savedSelected = localStorage.getItem('cheer_selected');
+            const savedCustom = localStorage.getItem('cheer_custom');
+            if (savedSelected) {
+                document.getElementById('presetSelect').value = savedSelected;
+                if (savedSelected === 'custom') {
+                    document.getElementById('customText').style.display = 'block';
+                    if (savedCustom) {
+                        document.getElementById('customText').value = savedCustom;
+                    }
                 }
             }
-            if (saved.custom) document.getElementById('customMessage').value = saved.custom;
-            if (saved.bgcolor) {
+
+            // 배경색 복원
+            const savedBgColor = localStorage.getItem('cheer_bgcolor');
+            if (savedBgColor) {
+                selectedColor = savedBgColor;
                 document.querySelectorAll('.color-btn').forEach(btn => {
                     btn.classList.remove('selected');
-                    if (btn.dataset.color === saved.bgcolor) btn.classList.add('selected');
+                    if (btn.dataset.color === savedBgColor) {
+                        btn.classList.add('selected');
+                    }
                 });
             }
-            if (saved.font) document.getElementById('fontSelect').value = saved.font;
-            if (saved.neon === 'true') document.getElementById('neonEffect').checked = true;
-            if (saved.slide === 'true') document.getElementById('slideEffect').checked = true;
-            if (saved.blink === 'true') document.getElementById('blinkEffect').checked = true;
+
+            // 글꼴 복원
+            const savedFont = localStorage.getItem('cheer_font');
+            if (savedFont) {
+                document.getElementById('fontSelect').value = savedFont;
+            }
+
+            // 효과 복원
+            if (localStorage.getItem('cheer_neon') === 'true') {
+                document.getElementById('neonEffect').checked = true;
+            }
+            if (localStorage.getItem('cheer_slide') === 'true') {
+                document.getElementById('slideEffect').checked = true;
+            }
+            if (localStorage.getItem('cheer_blink') === 'true') {
+                document.getElementById('blinkEffect').checked = true;
+            }
         };
 
-        // 옵션 변경 시 자동 저장
-        document.getElementById('messageSelect').addEventListener('change', function() {
+        // 문구 선택 변경 시 저장
+        document.getElementById('presetSelect').addEventListener('change', function() {
             localStorage.setItem('cheer_selected', this.value);
-            document.getElementById('customMessage').style.display = this.value === 'custom' ? 'block' : 'none';
+            if (this.value === 'custom') {
+                document.getElementById('customText').style.display = 'block';
+            } else {
+                document.getElementById('customText').style.display = 'none';
+            }
         });
-        document.getElementById('customMessage').addEventListener('input', function() {
+
+        // 직접 입력 변경 시 저장
+        document.getElementById('customText').addEventListener('input', function() {
             localStorage.setItem('cheer_custom', this.value);
         });
+
+        // 글꼴 변경 시 저장
         document.getElementById('fontSelect').addEventListener('change', function() {
             localStorage.setItem('cheer_font', this.value);
         });
+
+        // 효과 변경 시 저장
         document.getElementById('neonEffect').addEventListener('change', function() {
             localStorage.setItem('cheer_neon', this.checked);
         });
@@ -226,34 +255,38 @@
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
                 this.classList.add('selected');
-                localStorage.setItem('cheer_bgcolor', this.dataset.color);
+                selectedColor = this.dataset.color;
+                localStorage.setItem('cheer_bgcolor', selectedColor);
             });
         });
 
         function startCheer() {
-            const select = document.getElementById('messageSelect');
-            let message = select.value === 'custom' 
-                ? document.getElementById('customMessage').value 
-                : select.value;
+            const presetSelect = document.getElementById('presetSelect');
+            const customText = document.getElementById('customText');
+            const fontSelect = document.getElementById('fontSelect');
+            const neonEffect = document.getElementById('neonEffect').checked;
+            const slideEffect = document.getElementById('slideEffect').checked;
+            const blinkEffect = document.getElementById('blinkEffect').checked;
 
-            if (!message.trim()) {
-                alert('문구를 입력해주세요!');
+            let text = '';
+            if (presetSelect.value === 'custom') {
+                text = customText.value.trim();
+            } else {
+                text = presetSelect.value;
+            }
+
+            if (!text) {
+                alert('응원 문구를 입력해주세요!');
                 return;
             }
 
-            const bgcolor = document.querySelector('.color-btn.selected').dataset.color;
-            const font = document.getElementById('fontSelect').value;
-            const neon = document.getElementById('neonEffect').checked;
-            const slide = document.getElementById('slideEffect').checked;
-            const blink = document.getElementById('blinkEffect').checked;
-
             const params = new URLSearchParams({
-                msg: message,
-                bg: bgcolor,
-                font: font,
-                neon: neon,
-                slide: slide,
-                blink: blink
+                text: text,
+                bgcolor: selectedColor,
+                font: fontSelect.value,
+                neon: neonEffect,
+                slide: slideEffect,
+                blink: blinkEffect
             });
 
             window.location.href = 'cheer.html?' + params.toString();

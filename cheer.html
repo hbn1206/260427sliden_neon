@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>응원!</title>
+    <title>📣 응원!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gugi&family=Jua&display=swap" rel="stylesheet">
@@ -24,128 +22,212 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background: #000000;
+        }
+        .cheer-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
         }
         .cheer-text {
+            color: white;
             text-align: center;
             white-space: nowrap;
-            padding: 20px;
+            padding: 0 5%;
         }
 
         /* 네온 효과 */
         .neon {
             text-shadow: 
-                0 0 10px currentColor,
-                0 0 20px currentColor,
-                0 0 40px currentColor,
-                0 0 80px currentColor;
+                0 0 10px #fff,
+                0 0 20px #fff,
+                0 0 30px #fff,
+                0 0 40px #ff00de,
+                0 0 70px #ff00de,
+                0 0 80px #ff00de,
+                0 0 100px #ff00de;
+            animation: neon-glow 1.5s ease-in-out infinite alternate;
         }
-
-        /* 깜빡임 효과 */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        .blink {
-            animation: blink 1s ease-in-out infinite;
+        @keyframes neon-glow {
+            from {
+                text-shadow: 
+                    0 0 10px #fff,
+                    0 0 20px #fff,
+                    0 0 30px #fff,
+                    0 0 40px #ff00de,
+                    0 0 70px #ff00de,
+                    0 0 80px #ff00de,
+                    0 0 100px #ff00de;
+            }
+            to {
+                text-shadow: 
+                    0 0 5px #fff,
+                    0 0 10px #fff,
+                    0 0 15px #fff,
+                    0 0 20px #ff00de,
+                    0 0 35px #ff00de,
+                    0 0 40px #ff00de,
+                    0 0 50px #ff00de;
+            }
         }
 
         /* 슬라이드 효과 */
-        @keyframes slideMove {
-            0% { transform: translateX(100vw); }
-            100% { transform: translateX(-100%); }
-        }
-        .slide-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-        }
         .slide {
-            white-space: nowrap;
-            animation: slideMove 12s linear infinite;
-            padding-left: 100vw;
+            position: absolute;
+            animation: slide-move 15s linear infinite;
+        }
+        @keyframes slide-move {
+            0% {
+                transform: translateX(100vw);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
-        /* 뒤로가기 버튼 */
+        /* 깜빡깜빡 효과 */
+        .blink {
+            animation: blink-effect 0.8s ease-in-out infinite;
+        }
+        @keyframes blink-effect {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* 네온 + 깜빡 */
+        .neon.blink {
+            animation: neon-glow 1.5s ease-in-out infinite alternate, blink-effect 0.8s ease-in-out infinite;
+        }
+
+        /* 슬라이드 + 깜빡 */
+        .slide.blink {
+            animation: slide-move 15s linear infinite, blink-effect 0.8s ease-in-out infinite;
+        }
+
+        /* 슬라이드 + 네온 */
+        .slide.neon {
+            animation: slide-move 15s linear infinite, neon-glow 1.5s ease-in-out infinite alternate;
+        }
+
+        /* 슬라이드 + 네온 + 깜빡 */
+        .slide.neon.blink {
+            animation: slide-move 15s linear infinite, neon-glow 1.5s ease-in-out infinite alternate, blink-effect 0.8s ease-in-out infinite;
+        }
+
         .back-hint {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.3);
             font-size: 14px;
             font-family: 'Jua', sans-serif;
         }
     </style>
 </head>
 <body>
-    <div id="cheerContainer"></div>
-    <div class="back-hint">👆 화면을 터치하면 돌아갑니다</div>
+    <div class="cheer-container" id="container">
+        <div class="cheer-text" id="cheerText"></div>
+    </div>
+    <div class="back-hint">화면을 터치하면 돌아갑니다</div>
 
     <script>
+        // URL 파라미터 파싱
         const params = new URLSearchParams(window.location.search);
-        const message = params.get('msg') || '응원 문구!';
-        const bgcolor = params.get('bg') || '#000000';
+        const text = params.get('text') || '화이팅!';
+        const bgcolor = params.get('bgcolor') || '#000000';
         const font = params.get('font') || 'Black Han Sans';
         const neon = params.get('neon') === 'true';
         const slide = params.get('slide') === 'true';
         const blink = params.get('blink') === 'true';
 
-        // 배경색 설정
-        document.body.style.backgroundColor = bgcolor;
+        // 배경색 적용
+        document.body.style.background = bgcolor;
 
-        // 글자색 설정 (배경이 흰색이면 검정색)
-        const textColor = bgcolor === '#ffffff' ? '#000000' : '#ffffff';
+        // 텍스트 요소
+        const cheerText = document.getElementById('cheerText');
+        cheerText.textContent = text;
+        cheerText.style.fontFamily = "'" + font + "', sans-serif";
 
-        const container = document.getElementById('cheerContainer');
+        // 글자색 자동 설정 (밝은 배경이면 검은색)
+        const brightColors = ['#ffffff', '#ffd700', '#ffff00'];
+        if (brightColors.includes(bgcolor.toLowerCase())) {
+            cheerText.style.color = '#000000';
+        }
 
-        if (slide) {
-            // 슬라이드 모드
-            container.className = 'slide-container';
-            container.innerHTML = `<div class="cheer-text slide ${neon ? 'neon' : ''} ${blink ? 'blink' : ''}">${message}</div>`;
-            const textEl = container.querySelector('.cheer-text');
-            textEl.style.fontFamily = `'${font}', sans-serif`;
-            textEl.style.color = textColor;
-            textEl.style.fontSize = '20vh';  // 화면 높이의 20%
-        } else {
-            // 일반 모드 - 화면에 꽉 차게
-            container.innerHTML = `<div class="cheer-text ${neon ? 'neon' : ''} ${blink ? 'blink' : ''}">${message}</div>`;
-            const textEl = container.querySelector('.cheer-text');
-            textEl.style.fontFamily = `'${font}', sans-serif`;
-            textEl.style.color = textColor;
+        // 효과 적용
+        if (neon) cheerText.classList.add('neon');
+        if (slide) cheerText.classList.add('slide');
+        if (blink) cheerText.classList.add('blink');
 
-            // 글씨 크기 자동 조절
-            function adjustFontSize() {
+        // 글씨 크기 조절 함수
+        function adjustFontSize() {
+            const container = document.getElementById('container');
+            const textEl = document.getElementById('cheerText');
+
+            if (slide) {
+                // 슬라이드 모드: 화면 높이의 70%
+                textEl.style.fontSize = '70vh';
+            } else {
+                // 일반 모드: 화면에 꽉 차게 자동 조절
                 const maxWidth = window.innerWidth * 0.9;
                 const maxHeight = window.innerHeight * 0.7;
-                let fontSize = 500;
 
+                let fontSize = 1000; // 큰 값에서 시작
                 textEl.style.fontSize = fontSize + 'px';
 
-                while ((textEl.scrollWidth > maxWidth || textEl.scrollHeight > maxHeight) && fontSize > 20) {
-                    fontSize -= 5;
+                // 너비에 맞추기
+                while (textEl.scrollWidth > maxWidth && fontSize > 10) {
+                    fontSize -= 10;
+                    textEl.style.fontSize = fontSize + 'px';
+                }
+
+                // 높이에 맞추기
+                while (textEl.scrollHeight > maxHeight && fontSize > 10) {
+                    fontSize -= 10;
                     textEl.style.fontSize = fontSize + 'px';
                 }
             }
-
-            adjustFontSize();
-            window.addEventListener('resize', adjustFontSize);
         }
 
-        // 전체화면 시도
-        function tryFullscreen() {
-            const el = document.documentElement;
-            if (el.requestFullscreen) {
-                el.requestFullscreen().catch(() => {});
-            } else if (el.webkitRequestFullscreen) {
-                el.webkitRequestFullscreen();
+        // 초기 크기 조절
+        adjustFontSize();
+
+        // 화면 크기 변경 시 재조절
+        window.addEventListener('resize', adjustFontSize);
+
+        // 전체화면 요청
+        function requestFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
             }
         }
-        tryFullscreen();
+
+        // 페이지 로드 시 전체화면
+        document.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                requestFullscreen();
+            } else {
+                // 전체화면 상태에서 클릭하면 뒤로가기
+                window.location.href = 'index.html';
+            }
+        }, { once: false });
+
+        // 자동 전체화면 시도
+        setTimeout(requestFullscreen, 100);
 
         // 화면 꺼짐 방지
         async function keepAwake() {
@@ -153,17 +235,11 @@
                 if ('wakeLock' in navigator) {
                     await navigator.wakeLock.request('screen');
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.log('Wake Lock not supported');
+            }
         }
         keepAwake();
-
-        // 터치/클릭 시 뒤로가기
-        document.body.addEventListener('click', () => {
-            if (document.fullscreenElement) {
-                document.exitFullscreen().catch(() => {});
-            }
-            window.location.href = 'index.html';
-        });
     </script>
 </body>
 </html>
