@@ -1,28 +1,22 @@
-
 import streamlit as st
-import streamlit.components.v1 as components
 
 # 페이지 설정
 st.set_page_config(
-    page_title="🎉 응원 문구",
+    page_title="응원 문구",
     page_icon="📣",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
-
-# URL 파라미터로 상태 관리
-query_params = st.query_params
-is_fullscreen = query_params.get("fullscreen", "false") == "true"
 
 # 샘플 문구 목록
 SAMPLE_MESSAGES = {
     "직접 입력": "",
     "에듀테크AI(고) 분임 - 화이팅": "에듀테크AI(고) 분임 화이팅! 💪",
     "에듀테크AI(고) 분임 - 최고": "에듀테크AI(고) 분임 최고! 🏆",
-    "에듀테크AI(고) 분임 - 응원": "에듀테크AI(고) 분임을 응원합니다! 📣",
+    "에듀테크AI(고) 분임 - 응원": "에듀테크AI(고) 분임 응원합니다! 📣",
     "수학 분임 - 화이팅": "수학 분임 화이팅! 💪",
     "수학 분임 - 최고": "수학 분임 최고! 🏆",
-    "수학 분임 - 응원": "수학 분임을 응원합니다! 📣",
+    "수학 분임 - 응원": "수학 분임 응원합니다! 📣",
 }
 
 # 배경색과 글자색 조합
@@ -30,63 +24,41 @@ COLOR_SCHEMES = {
     "🖤 검정": {"bg": "#000000", "text": "#FFFFFF", "neon": "#00FFFF"},
     "❤️ 빨강": {"bg": "#CC0000", "text": "#FFFF00", "neon": "#FFFF00"},
     "💙 파랑": {"bg": "#0066CC", "text": "#FFFFFF", "neon": "#00FF00"},
-    "💚 초록": {"bg": "#006633", "text": "#FFFFFF", "neon": "#FF69B4"},
+    "💚 초록": {"bg": "#006600", "text": "#FFFFFF", "neon": "#FF69B4"},
     "💜 보라": {"bg": "#660099", "text": "#00FFFF", "neon": "#00FFFF"},
     "🤍 흰색": {"bg": "#FFFFFF", "text": "#FF1493", "neon": "#FF1493"},
 }
 
-# 세션 상태 초기화
-if 'selected_sample' not in st.session_state:
-    st.session_state.selected_sample = "직접 입력"
-if 'custom_message' not in st.session_state:
-    st.session_state.custom_message = "화이팅! 💪"
-if 'selected_color' not in st.session_state:
-    st.session_state.selected_color = "🖤 검정"
-if 'neon_effect' not in st.session_state:
-    st.session_state.neon_effect = True
-if 'slide_effect' not in st.session_state:
-    st.session_state.slide_effect = False
+# URL 파라미터 확인
+query_params = st.query_params
+is_fullscreen = query_params.get("fullscreen", "false") == "true"
 
-# =====================
-# 전체화면 모드
-# =====================
 if is_fullscreen:
-    # 저장된 설정 불러오기
-    message = query_params.get("msg", "화이팅! 💪")
-    color_key = query_params.get("color", "🖤 검정")
-    neon = query_params.get("neon", "true") == "true"
-    slide = query_params.get("slide", "false") == "true"
+    # 전체화면 모드
+    msg = query_params.get("msg", "화이팅!")
+    bg_color = query_params.get("bg", "#000000")
+    text_color = query_params.get("text", "#FFFFFF")
+    neon_color = query_params.get("neon", "#00FFFF")
+    use_neon = query_params.get("neon_effect", "false") == "true"
+    use_slide = query_params.get("slide_effect", "false") == "true"
 
-    colors = COLOR_SCHEMES.get(color_key, COLOR_SCHEMES["🖤 검정"])
-    bg_color = colors["bg"]
-    text_color = colors["text"]
-    neon_color = colors["neon"]
+    # 애니메이션 스타일 결정
+    if use_neon and use_slide:
+        animation_style = "animation: neonPulse 1.5s ease-in-out infinite alternate, slideText 15s linear infinite;"
+    elif use_neon:
+        animation_style = "animation: neonPulse 1.5s ease-in-out infinite alternate;"
+    elif use_slide:
+        animation_style = "animation: slideText 15s linear infinite;"
+    else:
+        animation_style = ""
 
-    # 네온 효과 CSS
-    neon_css = ""
-    if neon:
-        neon_css = f"""
-            text-shadow: 
-                0 0 10px {neon_color},
-                0 0 20px {neon_color},
-                0 0 40px {neon_color},
-                0 0 80px {neon_color};
-            animation: neonPulse 1.5s ease-in-out infinite alternate;
-        """
+    # 네온 텍스트 쉐도우
+    if use_neon:
+        neon_shadow = f"text-shadow: 0 0 10px {neon_color}, 0 0 20px {neon_color}, 0 0 40px {neon_color}, 0 0 80px {neon_color};"
+    else:
+        neon_shadow = ""
 
-    # 슬라이드 효과 CSS
-    slide_css = ""
-    slide_animation = ""
-    if slide:
-        slide_css = "animation: slideText 15s linear infinite;"
-        slide_animation = """
-            @keyframes slideText {
-                0% { transform: translateX(100vw); }
-                100% { transform: translateX(-100%); }
-            }
-        """
-
-    # 전체화면 HTML (터치 시 복귀 + 실제 전체화면)
+    # 전체화면 HTML
     fullscreen_html = f"""
     <!DOCTYPE html>
     <html>
@@ -116,80 +88,57 @@ if is_fullscreen:
                 justify-content: center;
                 align-items: center;
                 cursor: pointer;
-                z-index: 999999;
                 overflow: hidden;
             }}
 
             .message {{
-                font-size: clamp(3rem, 12vw, 10rem);
+                font-size: 15vw;
                 font-weight: bold;
                 color: {text_color};
                 text-align: center;
                 padding: 20px;
                 white-space: nowrap;
-                {neon_css}
-                {slide_css}
+                {neon_shadow}
+                {animation_style}
             }}
 
             @keyframes neonPulse {{
                 from {{
-                    text-shadow: 
-                        0 0 10px {neon_color},
-                        0 0 20px {neon_color},
-                        0 0 40px {neon_color};
+                    text-shadow: 0 0 10px {neon_color}, 0 0 20px {neon_color}, 0 0 40px {neon_color};
                 }}
                 to {{
-                    text-shadow: 
-                        0 0 20px {neon_color},
-                        0 0 40px {neon_color},
-                        0 0 80px {neon_color},
-                        0 0 120px {neon_color};
+                    text-shadow: 0 0 20px {neon_color}, 0 0 40px {neon_color}, 0 0 80px {neon_color}, 0 0 120px {neon_color};
                 }}
             }}
 
-            {slide_animation}
+            @keyframes slideText {{
+                from {{
+                    transform: translateX(100vw);
+                }}
+                to {{
+                    transform: translateX(-100%);
+                }}
+            }}
 
-            .hint {{
+            .touch-hint {{
                 position: fixed;
                 bottom: 30px;
                 left: 50%;
                 transform: translateX(-50%);
                 color: {text_color};
-                opacity: 0.6;
-                font-size: 1.2rem;
+                opacity: 0.7;
+                font-size: 16px;
                 text-align: center;
-                pointer-events: none;
-            }}
-
-            .back-btn {{
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                background: rgba(255,255,255,0.2);
-                border: none;
-                color: {text_color};
-                padding: 15px 25px;
-                font-size: 1.2rem;
-                border-radius: 10px;
-                cursor: pointer;
-                z-index: 1000000;
-            }}
-
-            .back-btn:hover {{
-                background: rgba(255,255,255,0.4);
             }}
         </style>
     </head>
     <body>
-        <div class="fullscreen-container" id="container" onclick="goBack()">
-            <div class="message">{message}</div>
-            <div class="hint">👆 화면을 터치하면 설정 화면으로 돌아갑니다</div>
+        <div class="fullscreen-container" onclick="goBack()">
+            <div class="message">{msg}</div>
+            <div class="touch-hint">👆 화면을 터치하면 설정 화면으로 돌아갑니다</div>
         </div>
-        <button class="back-btn" onclick="goBack()">⬅️ 뒤로</button>
-
         <script>
-            // 전체화면 API 실행
-            function enterFullscreen() {{
+            function requestFullscreen() {{
                 var elem = document.documentElement;
                 if (elem.requestFullscreen) {{
                     elem.requestFullscreen();
@@ -200,167 +149,141 @@ if is_fullscreen:
                 }}
             }}
 
-            // 페이지 로드 시 전체화면 진입 시도
             document.addEventListener('DOMContentLoaded', function() {{
-                // 약간의 딜레이 후 전체화면 시도 (사용자 제스처 필요할 수 있음)
-                setTimeout(enterFullscreen, 100);
+                setTimeout(requestFullscreen, 100);
             }});
 
-            // 클릭으로도 전체화면 진입 (사용자 제스처)
-            document.addEventListener('click', function(e) {{
-                if (!document.fullscreenElement) {{
-                    enterFullscreen();
-                }}
-            }}, {{once: true}});
-
-            // 뒤로 가기 함수
             function goBack() {{
-                // 전체화면 종료
                 if (document.exitFullscreen) {{
                     document.exitFullscreen();
                 }} else if (document.webkitExitFullscreen) {{
                     document.webkitExitFullscreen();
+                }} else if (document.msExitFullscreen) {{
+                    document.msExitFullscreen();
                 }}
-
-                // URL에서 fullscreen 파라미터 제거하고 이동
-                var url = new URL(window.parent.location.href);
-                url.searchParams.delete('fullscreen');
-                url.searchParams.delete('msg');
-                url.searchParams.delete('color');
-                url.searchParams.delete('neon');
-                url.searchParams.delete('slide');
-                window.parent.location.href = url.toString();
+                window.location.href = window.location.pathname;
             }}
         </script>
     </body>
     </html>
     """
 
-    # Streamlit 기본 UI 숨기기
+    st.components.v1.html(fullscreen_html, height=800, scrolling=False)
+
+else:
+    # 설정 화면
     st.markdown("""
         <style>
-            #MainMenu {visibility: hidden;}
-            header {visibility: hidden;}
-            footer {visibility: hidden;}
-            .stApp > header {display: none;}
-            section[data-testid="stSidebar"] {display: none;}
-            .block-container {padding: 0 !important; max-width: 100% !important;}
-            .stApp {overflow: hidden;}
+            .main > div { max-width: 800px; margin: 0 auto; }
+            .stRadio > div { display: flex; flex-wrap: wrap; gap: 10px; }
+            .stRadio > div > label { 
+                background: #f0f2f6; 
+                padding: 10px 20px; 
+                border-radius: 10px;
+                cursor: pointer;
+            }
         </style>
     """, unsafe_allow_html=True)
 
-    # 전체화면 HTML 렌더링
-    components.html(fullscreen_html, height=800, scrolling=False)
-
-# =====================
-# 설정 화면 (초기 화면)
-# =====================
-else:
-    st.title("📣 응원 문구 웹페이지")
+    st.markdown("<h1 style='text-align: center;'>🎉 응원 문구 만들기</h1>", unsafe_allow_html=True)
     st.markdown("---")
 
-    # 사이드바 설정
-    with st.sidebar:
-        st.header("⚙️ 설정")
+    # 1. 문구 선택 섹션
+    st.markdown("### 📝 문구 선택")
+    col1, col2 = st.columns([1, 2])
 
-        # 샘플 문구 선택
-        st.subheader("📝 문구 선택")
-        selected = st.selectbox(
-            "샘플 문구를 선택하세요",
+    with col1:
+        selected_sample = st.selectbox(
+            "샘플 문구 선택",
             options=list(SAMPLE_MESSAGES.keys()),
-            key="sample_select"
+            label_visibility="collapsed"
         )
-        st.session_state.selected_sample = selected
 
-        # 직접 입력
-        if selected == "직접 입력":
-            custom_msg = st.text_input(
-                "응원 문구를 입력하세요",
-                value=st.session_state.custom_message,
-                key="custom_input"
+    with col2:
+        if selected_sample == "직접 입력":
+            message = st.text_input(
+                "응원 문구 입력",
+                placeholder="응원 문구를 입력하세요...",
+                label_visibility="collapsed"
             )
-            st.session_state.custom_message = custom_msg
-            display_message = custom_msg
         else:
-            display_message = SAMPLE_MESSAGES[selected]
+            message = SAMPLE_MESSAGES[selected_sample]
+            st.text_input(
+                "선택된 문구",
+                value=message,
+                disabled=True,
+                label_visibility="collapsed"
+            )
 
-        st.markdown("---")
+    if not message:
+        message = "화이팅! 💪"
 
-        # 배경색 선택
-        st.subheader("🎨 배경색 선택")
-        color_choice = st.selectbox(
-            "배경색을 선택하세요",
-            options=list(COLOR_SCHEMES.keys()),
-            key="color_select"
-        )
-        st.session_state.selected_color = color_choice
+    st.markdown("---")
 
-        st.markdown("---")
+    # 2. 배경색 선택 섹션
+    st.markdown("### 🎨 배경색 선택")
+    selected_color = st.radio(
+        "배경색",
+        options=list(COLOR_SCHEMES.keys()),
+        horizontal=True,
+        label_visibility="collapsed"
+    )
 
-        # 효과 선택
-        st.subheader("✨ 효과 선택")
-        neon = st.checkbox("💡 네온싸인 효과", value=st.session_state.neon_effect, key="neon_check")
-        slide = st.checkbox("🎬 슬라이드 효과 (오른쪽→왼쪽)", value=st.session_state.slide_effect, key="slide_check")
-        st.session_state.neon_effect = neon
-        st.session_state.slide_effect = slide
+    colors = COLOR_SCHEMES[selected_color]
 
-    # 현재 색상 가져오기
-    colors = COLOR_SCHEMES[st.session_state.selected_color]
-    bg_color = colors["bg"]
-    text_color = colors["text"]
-    neon_color = colors["neon"]
+    st.markdown("---")
 
-    # 미리보기
-    st.subheader("👀 미리보기")
+    # 3. 효과 선택 섹션
+    st.markdown("### ✨ 효과 선택")
+    col1, col2 = st.columns(2)
 
-    # 네온 효과 CSS
+    with col1:
+        use_neon = st.checkbox("💡 네온싸인 효과", value=True)
+
+    with col2:
+        use_slide = st.checkbox("🎬 슬라이드 효과 (오른쪽→왼쪽)", value=False)
+
+    st.markdown("---")
+
+    # 4. 미리보기 섹션
+    st.markdown("### 👀 미리보기")
+
     neon_style = ""
-    if st.session_state.neon_effect:
-        neon_style = f"""
-            text-shadow: 
-                0 0 10px {neon_color},
-                0 0 20px {neon_color},
-                0 0 40px {neon_color};
-            animation: neonPulse 1.5s ease-in-out infinite alternate;
-        """
+    if use_neon:
+        neon_style = f"text-shadow: 0 0 10px {colors['neon']}, 0 0 20px {colors['neon']}, 0 0 40px {colors['neon']};"
 
-    # 슬라이드 효과 CSS
     slide_style = ""
     slide_keyframes = ""
-    if st.session_state.slide_effect:
-        slide_style = "animation: slideText 15s linear infinite;"
+    if use_slide:
+        slide_style = "animation: slidePreview 15s linear infinite;"
         slide_keyframes = """
-            @keyframes slideText {
-                0% { transform: translateX(100%); }
-                100% { transform: translateX(-100%); }
+            @keyframes slidePreview {
+                from { transform: translateX(100%); }
+                to { transform: translateX(-100%); }
             }
         """
 
     preview_html = f"""
     <style>
-        @keyframes neonPulse {{
-            from {{ text-shadow: 0 0 10px {neon_color}, 0 0 20px {neon_color}; }}
-            to {{ text-shadow: 0 0 20px {neon_color}, 0 0 40px {neon_color}, 0 0 80px {neon_color}; }}
-        }}
         {slide_keyframes}
     </style>
     <div style="
-        background-color: {bg_color};
+        background-color: {colors['bg']};
         padding: 60px 20px;
-        border-radius: 20px;
+        border-radius: 15px;
         text-align: center;
         overflow: hidden;
-        margin: 20px 0;
+        margin: 10px 0;
     ">
         <div style="
-            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-size: 2.5rem;
             font-weight: bold;
-            color: {text_color};
+            color: {colors['text']};
             white-space: nowrap;
             {neon_style}
             {slide_style}
         ">
-            {display_message if display_message else "문구를 입력하세요"}
+            {message}
         </div>
     </div>
     """
@@ -369,66 +292,51 @@ else:
 
     st.markdown("---")
 
-    # 전체화면 버튼 - URL 파라미터 방식
-    st.subheader("📺 전체화면 모드")
-    st.info("👆 전체화면에서 화면을 터치하면 설정 화면으로 돌아옵니다.")
+    # 5. 전체화면 버튼 섹션
+    st.markdown("### 📺 전체화면 모드")
 
-    # URL 생성을 위한 파라미터
     import urllib.parse
-    msg_encoded = urllib.parse.quote(display_message if display_message else "화이팅! 💪")
-    color_encoded = urllib.parse.quote(st.session_state.selected_color)
-    neon_str = "true" if st.session_state.neon_effect else "false"
-    slide_str = "true" if st.session_state.slide_effect else "false"
+    params = {
+        "fullscreen": "true",
+        "msg": message,
+        "bg": colors['bg'],
+        "text": colors['text'],
+        "neon": colors['neon'],
+        "neon_effect": "true" if use_neon else "false",
+        "slide_effect": "true" if use_slide else "false"
+    }
+    query_string = urllib.parse.urlencode(params)
 
-    # 전체화면 버튼 (JavaScript로 URL 변경)
     fullscreen_button_html = f"""
     <style>
         .fullscreen-btn {{
             display: block;
             width: 100%;
-            padding: 20px 40px;
+            padding: 20px;
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
             border: none;
             border-radius: 15px;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            margin: 20px 0;
+            margin: 10px 0;
             transition: transform 0.2s, box-shadow 0.2s;
         }}
         .fullscreen-btn:hover {{
             transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }}
     </style>
-    <button class="fullscreen-btn" onclick="goFullscreen()">
+    <a href="?{query_string}" class="fullscreen-btn">
         📺 전체화면으로 보기
-    </button>
-    <script>
-        function goFullscreen() {{
-            var url = new URL(window.location.href);
-            url.searchParams.set('fullscreen', 'true');
-            url.searchParams.set('msg', '{msg_encoded}');
-            url.searchParams.set('color', '{color_encoded}');
-            url.searchParams.set('neon', '{neon_str}');
-            url.searchParams.set('slide', '{slide_str}');
-            window.location.href = url.toString();
-        }}
-    </script>
+    </a>
     """
 
-    components.html(fullscreen_button_html, height=100)
+    st.markdown(fullscreen_button_html, unsafe_allow_html=True)
 
-    # 사용 안내
     st.markdown("---")
-    st.markdown("""
-    ### 📱 사용 방법
-    1. **문구 선택**: 샘플 문구를 선택하거나 직접 입력하세요
-    2. **배경색 선택**: 원하는 배경색을 선택하세요 (글자색 자동 변경)
-    3. **효과 선택**: 네온싸인, 슬라이드 효과를 선택하세요
-    4. **전체화면**: 버튼을 누르면 기기 전체화면으로 전환됩니다
-    5. **복귀**: 전체화면에서 화면을 터치하면 설정 화면으로 돌아옵니다
-    """)
+
+    st.info("💡 **사용 방법**: 문구와 옵션을 선택한 후 '전체화면으로 보기' 버튼을 누르세요. 전체화면에서 화면을 터치하면 설정 화면으로 돌아옵니다.")
