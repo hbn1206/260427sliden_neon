@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>🎉 응원 문구 만들기</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gugi&family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 문구 선택 */
+        .message-group {
+            margin-bottom: 15px;
+        }
+
+        .message-group-title {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .message-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .message-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .message-btn.selected {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        /* 직접 입력 */
+        .custom-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .custom-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* 색상 선택 */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .color-btn {
+            padding: 15px;
+            border: 3px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .color-btn.selected {
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+
+        /* 글꼴 선택 */
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .font-btn {
+            padding: 15px 10px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .font-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .font-btn.selected {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        /* 효과 선택 */
+        .effect-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .effect-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .effect-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .effect-btn.selected {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        /* 미리보기 */
+        .preview-box {
+            width: 100%;
+            height: 150px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-text {
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 10px;
+            white-space: nowrap;
+        }
+
+        /* 전체화면 버튼 */
+        .fullscreen-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%);
+            border: none;
+            border-radius: 15px;
+            color: #000;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .fullscreen-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 애니메이션 */
+        @keyframes neonPulse {
+            0%, 100% { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor; }
+            50% { text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 20px currentColor; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes slideText {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .neon {
+            animation: neonPulse 1.5s ease-in-out infinite;
+        }
+
+        .blink {
+            animation: blink 0.8s ease-in-out infinite;
+        }
+
+        .slide {
+            animation: slideText 8s linear infinite;
+        }
+
+        /* 안내 문구 */
+        .info-text {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 응원 문구 만들기</h1>
+
+        <!-- 문구 선택 -->
+        <div class="section">
+            <div class="section-title">📝 문구 선택</div>
+
+            <div class="message-group">
+                <div class="message-group-title">🤖 에듀테크AI(고) 분임</div>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="에듀테크AI(고) 분임 최고! 🏆">에듀테크AI(고) 분임 최고! 🏆</button>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="에듀테크AI(고) 분임이 짱이다! 💪">에듀테크AI(고) 분임이 짱이다! 💪</button>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="에듀테크AI(고) 분임 넘버원! 🥇">에듀테크AI(고) 분임 넘버원! 🥇</button>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="에듀테크AI(고) 우리가 최고! ⭐">에듀테크AI(고) 우리가 최고! ⭐</button>
+            </div>
+
+            <div class="message-group">
+                <div class="message-group-title">🔢 수학 분임</div>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="수학 분임 최고! 🏆">수학 분임 최고! 🏆</button>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="수학 분임이 짱이다! 💪">수학 분임이 짱이다! 💪</button>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="수학 분임 넘버원! 🥇">수학 분임 넘버원! 🥇</button>
+                <button class="message-btn" onclick="selectMessage(this)" data-msg="수학 분임 우리가 최고! ⭐">수학 분임 우리가 최고! ⭐</button>
+            </div>
+
+            <div class="message-group">
+                <div class="message-group-title">✏️ 직접 입력</div>
+                <input type="text" class="custom-input" id="customMessage" placeholder="원하는 문구를 입력하세요" oninput="updateCustomMessage()">
+            </div>
+        </div>
+
+        <!-- 배경색 선택 -->
+        <div class="section">
+            <div class="section-title">🎨 배경색 선택</div>
+            <div class="color-grid">
+                <button class="color-btn selected" onclick="selectColor(this)" data-color="#000000" style="background:#000000;">🖤 검정</button>
+                <button class="color-btn" onclick="selectColor(this)" data-color="#cc0000" style="background:#cc0000;">❤️ 빨강</button>
+                <button class="color-btn" onclick="selectColor(this)" data-color="#0066cc" style="background:#0066cc;">💙 파랑</button>
+                <button class="color-btn" onclick="selectColor(this)" data-color="#006600" style="background:#006600;">💚 초록</button>
+                <button class="color-btn" onclick="selectColor(this)" data-color="#660099" style="background:#660099;">💜 보라</button>
+                <button class="color-btn" onclick="selectColor(this)" data-color="#ffffff" style="background:#ffffff; color:#000;">🤍 흰색</button>
+            </div>
+        </div>
+
+        <!-- 글꼴 선택 -->
+        <div class="section">
+            <div class="section-title">🔤 글꼴 선택</div>
+            <div class="font-grid">
+                <button class="font-btn selected" onclick="selectFont(this)" data-font="'Black Han Sans'" style="font-family:'Black Han Sans';">강렬한 고딕</button>
+                <button class="font-btn" onclick="selectFont(this)" data-font="'Jua'" style="font-family:'Jua';">친근한 고딕</button>
+                <button class="font-btn" onclick="selectFont(this)" data-font="'Do Hyeon'" style="font-family:'Do Hyeon';">레트로 고딕</button>
+                <button class="font-btn" onclick="selectFont(this)" data-font="'Gugi'" style="font-family:'Gugi';">독특한 고딕</button>
+            </div>
+        </div>
+
+        <!-- 효과 선택 -->
+        <div class="section">
+            <div class="section-title">✨ 효과 선택</div>
+            <div class="effect-grid">
+                <button class="effect-btn" onclick="toggleEffect(this)" data-effect="neon">💡 네온싸인</button>
+                <button class="effect-btn" onclick="toggleEffect(this)" data-effect="slide">🎬 슬라이드</button>
+                <button class="effect-btn" onclick="toggleEffect(this)" data-effect="blink">⚡ 깜빡깜빡</button>
+            </div>
+        </div>
+
+        <!-- 미리보기 -->
+        <div class="section">
+            <div class="section-title">👀 미리보기</div>
+            <div class="preview-box" id="previewBox">
+                <div class="preview-text" id="previewText">문구를 선택하세요</div>
+            </div>
+        </div>
+
+        <!-- 전체화면 버튼 -->
+        <button class="fullscreen-btn" onclick="goFullscreen()">
+            📺 전체화면으로 보기
+        </button>
+
+        <div class="info-text">
+            💡 전체화면에서 화면을 터치하면 돌아옵니다
+        </div>
+    </div>
+
+    <script>
+        // 상태 저장
+        let state = {
+            message: '',
+            color: '#000000',
+            font: "'Black Han Sans'",
+            effects: []
+        };
+
+        // 문구 선택
+        function selectMessage(btn) {
+            document.querySelectorAll('.message-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            state.message = btn.dataset.msg;
+            document.getElementById('customMessage').value = '';
+            updatePreview();
+        }
+
+        // 직접 입력
+        function updateCustomMessage() {
+            const input = document.getElementById('customMessage');
+            if (input.value.trim()) {
+                document.querySelectorAll('.message-btn').forEach(b => b.classList.remove('selected'));
+                state.message = input.value;
+                updatePreview();
+            }
+        }
+
+        // 배경색 선택
+        function selectColor(btn) {
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            state.color = btn.dataset.color;
+            updatePreview();
+        }
+
+        // 글꼴 선택
+        function selectFont(btn) {
+            document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            state.font = btn.dataset.font;
+            updatePreview();
+        }
+
+        // 효과 선택 (토글)
+        function toggleEffect(btn) {
+            btn.classList.toggle('selected');
+            const effect = btn.dataset.effect;
+            if (btn.classList.contains('selected')) {
+                if (!state.effects.includes(effect)) {
+                    state.effects.push(effect);
+                }
+            } else {
+                state.effects = state.effects.filter(e => e !== effect);
+            }
+            updatePreview();
+        }
+
+        // 미리보기 업데이트
+        function updatePreview() {
+            const box = document.getElementById('previewBox');
+            const text = document.getElementById('previewText');
+
+            box.style.background = state.color;
+            text.textContent = state.message || '문구를 선택하세요';
+            text.style.fontFamily = state.font;
+            text.style.color = state.color === '#ffffff' ? '#000000' : '#ffffff';
+
+            // 효과 적용
+            text.className = 'preview-text';
+            state.effects.forEach(effect => {
+                text.classList.add(effect);
+            });
+        }
+
+        // 전체화면으로 이동
+        function goFullscreen() {
+            if (!state.message) {
+                alert('문구를 선택해주세요!');
+                return;
+            }
+
+            // URL 파라미터로 데이터 전달
+            const params = new URLSearchParams({
+                msg: state.message,
+                color: state.color,
+                font: state.font,
+                effects: state.effects.join(',')
+            });
+
+            window.location.href = 'cheer.html?' + params.toString();
+        }
+    </script>
+</body>
+</html>

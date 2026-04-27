@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <title>🎉 응원</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gugi&family=Jua&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+            /* iOS safe area */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .fullscreen-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .cheer-text {
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+            padding: 5vw;
+            word-break: keep-all;
+            line-height: 1.3;
+            width: 100%;
+        }
+
+        /* 슬라이드용 텍스트 */
+        .slide-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .slide-text {
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: slideText 10s linear infinite;
+        }
+
+        /* 애니메이션 */
+        @keyframes neonPulse {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 10px currentColor, 
+                    0 0 20px currentColor, 
+                    0 0 40px currentColor,
+                    0 0 80px currentColor;
+            }
+            50% { 
+                text-shadow: 
+                    0 0 5px currentColor, 
+                    0 0 10px currentColor, 
+                    0 0 20px currentColor,
+                    0 0 40px currentColor;
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        @keyframes slideText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-200%); }
+        }
+
+        .neon {
+            animation: neonPulse 1.5s ease-in-out infinite;
+        }
+
+        .blink {
+            animation: blink 0.7s ease-in-out infinite;
+        }
+
+        /* 뒤로가기 안내 */
+        .back-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            animation: fadeInOut 3s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        /* 전체화면 진입 버튼 (처음만 표시) */
+        .enter-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .enter-btn {
+            padding: 25px 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%);
+            border: none;
+            border-radius: 20px;
+            color: #000;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .enter-hint {
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 전체화면 진입 버튼 -->
+    <div class="enter-fullscreen" id="enterScreen">
+        <button class="enter-btn" onclick="enterFullscreen()">📺 전체화면 시작</button>
+        <div class="enter-hint">버튼을 눌러 전체화면으로 시작하세요</div>
+    </div>
+
+    <!-- 응원 화면 -->
+    <div class="fullscreen-container" id="cheerScreen" onclick="goBack()">
+        <div class="cheer-text" id="cheerText"></div>
+    </div>
+
+    <div class="back-hint" id="backHint">👆 화면을 터치하면 돌아갑니다</div>
+
+    <script>
+        // URL 파라미터 파싱
+        const params = new URLSearchParams(window.location.search);
+        const message = params.get('msg') || '응원 문구';
+        const bgColor = params.get('color') || '#000000';
+        const fontFamily = params.get('font') || "'Black Han Sans'";
+        const effects = (params.get('effects') || '').split(',').filter(e => e);
+
+        // 설정 적용
+        const container = document.querySelector('.fullscreen-container');
+        const textEl = document.getElementById('cheerText');
+        const backHint = document.getElementById('backHint');
+
+        container.style.background = bgColor;
+        document.body.style.background = bgColor;
+        textEl.style.fontFamily = fontFamily;
+        textEl.textContent = message;
+
+        // 텍스트 색상 (배경에 따라)
+        const textColor = bgColor === '#ffffff' ? '#000000' : '#ffffff';
+        textEl.style.color = textColor;
+        backHint.style.color = bgColor === '#ffffff' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)';
+
+        // 슬라이드 효과 처리
+        const isSlide = effects.includes('slide');
+
+        if (isSlide) {
+            // 슬라이드 모드
+            textEl.classList.add('slide-text');
+            textEl.parentElement.classList.add('slide-container');
+            textEl.style.fontSize = '15vh';  // 화면 높이의 15%
+        }
+
+        // 기타 효과 적용
+        effects.forEach(effect => {
+            if (effect === 'neon') textEl.classList.add('neon');
+            if (effect === 'blink') textEl.classList.add('blink');
+        });
+
+        // 글씨 크기 자동 조절 (슬라이드가 아닌 경우)
+        function adjustFontSize() {
+            if (isSlide) return;
+
+            const containerWidth = window.innerWidth * 0.9;
+            const containerHeight = window.innerHeight * 0.7;
+
+            let fontSize = Math.min(containerWidth / message.length * 1.8, containerHeight * 0.4);
+            fontSize = Math.max(fontSize, 20); // 최소 크기
+            fontSize = Math.min(fontSize, 200); // 최대 크기
+
+            textEl.style.fontSize = fontSize + 'px';
+        }
+
+        // 전체화면 진입
+        function enterFullscreen() {
+            const elem = document.documentElement;
+
+            // Fullscreen API 시도
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+
+            // 화면 꺼짐 방지
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(err => console.log(err));
+            }
+
+            // 진입 화면 숨기기
+            document.getElementById('enterScreen').classList.add('hidden');
+
+            // 글씨 크기 조절
+            adjustFontSize();
+        }
+
+        // 뒤로가기
+        function goBack() {
+            // 전체화면 해제
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(err => {});
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+
+            // 이전 페이지로
+            window.location.href = 'index.html';
+        }
+
+        // 화면 크기 변경 시 글씨 크기 재조절
+        window.addEventListener('resize', adjustFontSize);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(adjustFontSize, 100);
+        });
+
+        // 초기 크기 설정
+        adjustFontSize();
+    </script>
+</body>
+</html>
