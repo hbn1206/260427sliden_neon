@@ -2,251 +2,150 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>응원 화면</title>
-
-    <!-- Google Fonts -->
+    <title>응원!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gugi&family=Jua&display=swap" rel="stylesheet">
-
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
         }
-
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #000000;
+        }
+        .cheer-text {
+            text-align: center;
+            white-space: nowrap;
+            padding: 20px;
         }
 
-        /* 슬라이드용 컨테이너 */
+        /* 네온 효과 */
+        .neon {
+            text-shadow: 
+                0 0 10px currentColor,
+                0 0 20px currentColor,
+                0 0 40px currentColor,
+                0 0 80px currentColor;
+        }
+
+        /* 깜빡임 효과 */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .blink {
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        /* 슬라이드 효과 */
+        @keyframes slideMove {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
         .slide-container {
-            position: absolute;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             overflow: hidden;
         }
-
-        /* 일반 텍스트 (슬라이드 아님) */
-        #cheerText {
-            text-align: center;
-            color: #FFFF00;
-            font-weight: bold;
+        .slide {
             white-space: nowrap;
-            padding: 0 5%;
-        }
-
-        /* 슬라이드 텍스트 */
-        #slideText {
-            position: absolute;
-            white-space: nowrap;
-            color: #FFFF00;
-            font-weight: bold;
-        }
-
-        /* 네온 효과 */
-        .neon {
-            text-shadow:
-                0 0 10px #FFFF00,
-                0 0 20px #FFFF00,
-                0 0 40px #FFFF00,
-                0 0 80px #FF8C00,
-                0 0 120px #FF8C00;
-        }
-
-        /* 네온 펄스 애니메이션 */
-        .neon-pulse {
-            animation: neonPulse 1.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes neonPulse {
-            from {
-                text-shadow:
-                    0 0 10px #FFFF00,
-                    0 0 20px #FFFF00,
-                    0 0 40px #FFFF00,
-                    0 0 80px #FF8C00;
-            }
-            to {
-                text-shadow:
-                    0 0 20px #FFFF00,
-                    0 0 40px #FFFF00,
-                    0 0 80px #FFFF00,
-                    0 0 120px #FF8C00,
-                    0 0 160px #FF8C00;
-            }
-        }
-
-        /* 깜빡임 효과 */
-        .blink {
-            animation: blinkAnim 0.8s ease-in-out infinite;
-        }
-
-        @keyframes blinkAnim {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* 슬라이드 애니메이션 */
-        .slide-anim {
             animation: slideMove 12s linear infinite;
+            padding-left: 100vw;
         }
 
-        @keyframes slideMove {
-            0% {
-                transform: translateX(100vw);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        /* 돌아가기 버튼 */
-        #backBtn {
+        /* 뒤로가기 버튼 */
+        .back-hint {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            border-radius: 20px;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        body:hover #backBtn,
-        body:active #backBtn {
-            opacity: 1;
-        }
-
-        /* 터치 안내 */
-        #touchHint {
-            position: fixed;
-            bottom: 30px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             color: rgba(255,255,255,0.5);
             font-size: 14px;
-            z-index: 1000;
+            font-family: 'Jua', sans-serif;
         }
     </style>
 </head>
 <body>
-    <button id="backBtn" onclick="goBack()">← 돌아가기</button>
-
-    <div class="slide-container" id="slideContainer" style="display:none;">
-        <div id="slideText"></div>
-    </div>
-
-    <div id="cheerText"></div>
-
-    <div id="touchHint">화면을 터치하면 설정으로 돌아갑니다</div>
+    <div id="cheerContainer"></div>
+    <div class="back-hint">👆 화면을 터치하면 돌아갑니다</div>
 
     <script>
-        // URL 파라미터 가져오기
         const params = new URLSearchParams(window.location.search);
-        const msg = params.get('msg') || '응원 문구를 선택하세요!';
-        const bgColor = params.get('color') || '#000000';
+        const message = params.get('msg') || '응원 문구!';
+        const bgcolor = params.get('bg') || '#000000';
         const font = params.get('font') || 'Black Han Sans';
-        const effects = (params.get('effects') || '').split(',').filter(e => e);
+        const neon = params.get('neon') === 'true';
+        const slide = params.get('slide') === 'true';
+        const blink = params.get('blink') === 'true';
 
-        // 배경색 적용
-        document.body.style.background = bgColor;
+        // 배경색 설정
+        document.body.style.backgroundColor = bgcolor;
 
-        const isSlide = effects.includes('slide');
-        const isNeon = effects.includes('neon');
-        const isBlink = effects.includes('blink');
+        // 글자색 설정 (배경이 흰색이면 검정색)
+        const textColor = bgcolor === '#ffffff' ? '#000000' : '#ffffff';
 
-        if (isSlide) {
+        const container = document.getElementById('cheerContainer');
+
+        if (slide) {
             // 슬라이드 모드
-            document.getElementById('cheerText').style.display = 'none';
-            document.getElementById('slideContainer').style.display = 'flex';
-
-            const slideText = document.getElementById('slideText');
-            slideText.textContent = msg;
-            slideText.style.fontFamily = "'" + font + "', sans-serif";
-
-            // 슬라이드 글씨 크기: 화면 높이의 25%
-            slideText.style.fontSize = '25vh';
-
-            // 효과 적용
-            if (isNeon) slideText.classList.add('neon', 'neon-pulse');
-            if (isBlink) slideText.classList.add('blink');
-            slideText.classList.add('slide-anim');
-
+            container.className = 'slide-container';
+            container.innerHTML = `<div class="cheer-text slide ${neon ? 'neon' : ''} ${blink ? 'blink' : ''}">${message}</div>`;
+            const textEl = container.querySelector('.cheer-text');
+            textEl.style.fontFamily = `'${font}', sans-serif`;
+            textEl.style.color = textColor;
+            textEl.style.fontSize = '20vh';  // 화면 높이의 20%
         } else {
-            // 일반 모드 (화면에 꽉 차게)
-            document.getElementById('slideContainer').style.display = 'none';
+            // 일반 모드 - 화면에 꽉 차게
+            container.innerHTML = `<div class="cheer-text ${neon ? 'neon' : ''} ${blink ? 'blink' : ''}">${message}</div>`;
+            const textEl = container.querySelector('.cheer-text');
+            textEl.style.fontFamily = `'${font}', sans-serif`;
+            textEl.style.color = textColor;
 
-            const cheerText = document.getElementById('cheerText');
-            cheerText.textContent = msg;
-            cheerText.style.fontFamily = "'" + font + "', sans-serif";
-
-            // 효과 적용
-            if (isNeon) cheerText.classList.add('neon', 'neon-pulse');
-            if (isBlink) cheerText.classList.add('blink');
-
-            // 글씨 크기 자동 조절 (화면에 꽉 차게)
+            // 글씨 크기 자동 조절
             function adjustFontSize() {
-                const maxWidth = window.innerWidth * 0.9;  // 화면 너비의 90%
-                const maxHeight = window.innerHeight * 0.7; // 화면 높이의 70%
+                const maxWidth = window.innerWidth * 0.9;
+                const maxHeight = window.innerHeight * 0.7;
+                let fontSize = 500;
 
-                let fontSize = 500; // 매우 크게 시작
-                cheerText.style.fontSize = fontSize + 'px';
+                textEl.style.fontSize = fontSize + 'px';
 
-                // 너비에 맞출 때까지 줄이기
-                while ((cheerText.scrollWidth > maxWidth || cheerText.scrollHeight > maxHeight) && fontSize > 20) {
+                while ((textEl.scrollWidth > maxWidth || textEl.scrollHeight > maxHeight) && fontSize > 20) {
                     fontSize -= 5;
-                    cheerText.style.fontSize = fontSize + 'px';
+                    textEl.style.fontSize = fontSize + 'px';
                 }
             }
 
             adjustFontSize();
             window.addEventListener('resize', adjustFontSize);
-            window.addEventListener('orientationchange', () => {
-                setTimeout(adjustFontSize, 100);
-            });
         }
 
-        // 전체화면 요청
-        function requestFullscreen() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
+        // 전체화면 시도
+        function tryFullscreen() {
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen().catch(() => {});
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
             }
         }
-
-        // 페이지 로드 시 전체화면
-        document.addEventListener('click', function once() {
-            requestFullscreen();
-            document.removeEventListener('click', once);
-            document.getElementById('touchHint').style.display = 'none';
-        });
+        tryFullscreen();
 
         // 화면 꺼짐 방지
         async function keepAwake() {
@@ -258,22 +157,12 @@
         }
         keepAwake();
 
-        // 돌아가기
-        function goBack() {
+        // 터치/클릭 시 뒤로가기
+        document.body.addEventListener('click', () => {
             if (document.fullscreenElement) {
-                document.exitFullscreen();
+                document.exitFullscreen().catch(() => {});
             }
             window.location.href = 'index.html';
-        }
-
-        // 더블탭으로 돌아가기
-        let lastTap = 0;
-        document.addEventListener('touchend', function(e) {
-            const now = Date.now();
-            if (now - lastTap < 300) {
-                goBack();
-            }
-            lastTap = now;
         });
     </script>
 </body>
