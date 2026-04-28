@@ -3,400 +3,366 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#0b1020" />
-<title>분임 응원 LED</title>
+<title>응원 문구 LED</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@700&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@900&family=Gugi&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gaegu:wght@700&family=Gugi&family=Jua&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@900&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0b1020; --panel:#141a33; --line:#26305a; --text:#eef1ff; --muted:#9aa3c7;
-    --accent:#7c5cff; --accent2:#22d3ee;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
-    font-family:'Noto Sans KR','Pretendard',system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-    overflow-x:hidden;}
-  .wrap{max-width:720px;margin:0 auto;padding:16px 14px 40px;}
-  h1{font-size:20px;margin:6px 0 14px;letter-spacing:-.5px;}
-  h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;background:#0b0d12;color:#fff;font-family:'Noto Sans KR',sans-serif;}
+  body{overscroll-behavior:none;}
+  .app{padding:14px 14px 40px;max-width:560px;margin:0 auto;}
+  h1{font-size:20px;margin:6px 0 12px;text-align:center;}
+  .card{background:#161922;border:1px solid #242938;border-radius:14px;padding:12px;margin-bottom:12px;}
   .row{display:flex;gap:8px;flex-wrap:wrap;}
-  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;}
-  .seg{display:flex;background:#0f1530;border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px;}
-  .seg button{flex:1;background:transparent;color:var(--text);border:0;padding:10px 8px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;}
-  .seg button.on{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0b1020;}
-  .examples{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
-  .examples button{background:#0f1530;border:1px solid var(--line);color:var(--text);
-    border-radius:10px;padding:12px;font-size:14px;line-height:1.35;cursor:pointer;text-align:left;font-weight:600;}
-  .examples button:active{transform:scale(.98);}
-  textarea{width:100%;min-height:80px;background:#0f1530;color:var(--text);border:1px solid var(--line);
-    border-radius:10px;padding:12px;font-size:15px;resize:vertical;font-family:inherit;}
+  .btn{flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid #2c3145;background:#1d2230;color:#fff;font-size:14px;cursor:pointer;}
+  .btn.active{background:#3a6df0;border-color:#3a6df0;}
+  .btn.primary{background:#ef4444;border-color:#ef4444;font-weight:700;font-size:16px;padding:14px;}
+  .label{font-size:13px;color:#9aa3b2;margin:6px 2px;}
+  .examples{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .ex{padding:10px;border-radius:10px;background:#1d2230;border:1px solid #2c3145;color:#fff;font-size:13px;text-align:left;cursor:pointer;line-height:1.4;}
+  textarea{width:100%;min-height:70px;border-radius:10px;border:1px solid #2c3145;background:#0f131c;color:#fff;padding:10px;font-size:14px;font-family:inherit;resize:vertical;}
+  select,input[type=color],input[type=range]{background:#0f131c;color:#fff;border:1px solid #2c3145;border-radius:8px;padding:8px;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-  select,input[type=color],input[type=range]{width:100%;background:#0f1530;color:var(--text);
-    border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;}
-  input[type=color]{height:44px;padding:4px;}
-  .btn{display:block;width:100%;padding:16px;border-radius:14px;border:0;font-size:17px;font-weight:800;cursor:pointer;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0b1020;letter-spacing:.5px;}
-  .btn:active{transform:scale(.99);}
-  .preview{aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;position:relative;border:1px solid var(--line);}
-  .stage,.preview .inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-  .text{white-space:pre-wrap;word-break:keep-all;text-align:center;line-height:1.05;font-weight:900;
-    text-shadow:0 0 14px rgba(255,255,255,.12);padding:0 4px;}
-  /* 흐르기: 단일 문구가 오른쪽 밖에서 시작해 왼쪽 밖으로 사라지고 2초 대기 후 반복 */
-  .marquee{position:absolute;inset:0;display:flex;align-items:center;overflow:hidden;}
-  .marquee .track{position:absolute;left:0;top:50%;transform:translate(100%,-50%);white-space:nowrap;
-    animation:marquee var(--dur,12s) linear infinite;will-change:transform;font-weight:900;line-height:1;
-    text-shadow:0 0 14px rgba(255,255,255,.12);}
-  @keyframes marquee{
-    0%   { transform: translate(100%,-50%); }    /* 오른쪽 화면 밖에서 시작 */
-    var(--end,80%) { transform: translate(-100%,-50%); } /* 왼쪽 밖으로 사라짐 */
-    100% { transform: translate(-100%,-50%); }   /* 2초 대기 (정지) */
-  }
+  .field{display:flex;flex-direction:column;gap:4px;}
+  /* 미리보기 */
+  .preview{aspect-ratio:16/9;width:100%;border-radius:12px;overflow:hidden;position:relative;background:#000;}
+  /* 무대(미리보기/전체화면 공용) */
+  .stage{position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .stage .text{display:inline-block;font-weight:900;line-height:1.05;text-align:center;white-space:pre-wrap;word-break:keep-all;padding:0 8px;}
+  /* 흐르기 */
+  .marquee{position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;}
+  .marquee .track{display:inline-block;white-space:nowrap;font-weight:900;line-height:1;will-change:transform;}
   /* 깜빡임 */
-  @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:.05} }
-  .blink{animation:blink 1s steps(1) infinite;}
+  @keyframes blink {0%,49%{opacity:1}50%,100%{opacity:0}}
+  .blink{animation:blink 0.8s steps(1) infinite;}
   /* 무지개 */
-  @keyframes hue { from{filter:hue-rotate(0deg)} to{filter:hue-rotate(360deg)} }
-  .rainbow{animation:hue 4s linear infinite;
-    background:linear-gradient(90deg,#ff5b6e,#ffb84d,#ffe14d,#7cf08a,#5bd1ff,#9b8cff,#ff7adf);
-    -webkit-background-clip:text;background-clip:text;color:transparent;}
-  /* 전체화면 무대 */
-  #stage{position:fixed;inset:0;background:#000;z-index:9999;display:none;align-items:center;justify-content:center;overflow:hidden;}
-  #stage.on{display:flex;}
-  .hint{font-size:12px;color:var(--muted);margin-top:6px;}
-  .pillrow{display:flex;gap:6px;flex-wrap:wrap;}
-  .pill{font-size:12px;padding:4px 10px;border-radius:999px;background:#0f1530;border:1px solid var(--line);color:var(--muted);}
-  .footer{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;}
-  /* 글꼴 클래스 */
-  .f-noto{font-family:'Noto Sans KR',sans-serif;font-weight:900;}
-  .f-blackhan{font-family:'Black Han Sans',sans-serif;}
-  .f-dohyeon{font-family:'Do Hyeon',sans-serif;}
-  .f-jua{font-family:'Jua',sans-serif;}
-  .f-gaegu{font-family:'Gaegu',cursive;font-weight:700;}
-  .f-pen{font-family:'Nanum Pen Script',cursive;}
-  .f-gugi{font-family:'Gugi',cursive;}
+  @keyframes rainbow {
+    0%{color:#ff3b30}16%{color:#ff9500}33%{color:#ffcc00}
+    50%{color:#34c759}66%{color:#00c7be}83%{color:#5856d6}100%{color:#af52de}
+  }
+  .rainbow{animation:rainbow 3s linear infinite;}
+  /* 전체화면 */
+  .fullscreen{position:fixed;inset:0;z-index:9999;background:#000;}
+  .hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);color:rgba(255,255,255,.55);font-size:12px;z-index:10000;pointer-events:none;}
+  .hide{display:none !important;}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>📣 <span>분임 응원 LED</span></h1>
+<div class="app" id="app">
+  <h1>📣 응원 문구 LED</h1>
 
   <div class="card">
-    <label>분임 선택</label>
-    <div class="seg" id="groupSeg">
-      <button data-g="edutech" class="on">에듀테크AI(고)</button>
-      <button data-g="math">수학</button>
+    <div class="label">분임 선택</div>
+    <div class="row">
+      <button class="btn active" data-team="ai">에듀테크AI(고)</button>
+      <button class="btn" data-team="math">수학</button>
     </div>
-    <label style="margin-top:12px;">예시 문구 (탭하면 자동 입력)</label>
+  </div>
+
+  <div class="card">
+    <div class="label">예시 문구 (눌러서 바로 적용)</div>
     <div class="examples" id="examples"></div>
   </div>
 
   <div class="card">
-    <label>응원 문구 직접 입력</label>
-    <textarea id="msg" placeholder="여기에 응원 문구를 입력하세요">에듀테크 AI 최고!!</textarea>
-    <div class="hint">줄바꿈도 그대로 반영됩니다.</div>
+    <div class="label">직접 입력</div>
+    <textarea id="msg" placeholder="응원 문구를 입력하세요">에듀테크 AI 최고!!</textarea>
   </div>
 
   <div class="card">
-    <label>효과</label>
-    <div class="seg" id="fxSeg">
-      <button data-fx="flow" class="on">흐르기</button>
-      <button data-fx="blink">깜빡임</button>
-      <button data-fx="rainbow">무지개</button>
-      <button data-fx="solid">고정</button>
+    <div class="label">효과</div>
+    <div class="row">
+      <button class="btn fx active" data-fx="marquee">흐르기</button>
+      <button class="btn fx" data-fx="blink">깜빡임</button>
+      <button class="btn fx" data-fx="rainbow">무지개</button>
+      <button class="btn fx" data-fx="static">고정</button>
     </div>
-
-    <div class="grid2" style="margin-top:12px;">
-      <div>
-        <label>글자색</label>
-        <input type="color" id="fg" value="#ffe14d" />
+    <div class="grid3" style="margin-top:10px;">
+      <div class="field">
+        <span class="label">글자색</span>
+        <input type="color" id="fg" value="#ffffff">
       </div>
-      <div>
-        <label>배경색</label>
-        <input type="color" id="bg" value="#000000" />
+      <div class="field">
+        <span class="label">배경색</span>
+        <input type="color" id="bg" value="#000000">
+      </div>
+      <div class="field">
+        <span class="label">속도(흐르기)</span>
+        <input type="range" id="speed" min="60" max="500" value="220">
       </div>
     </div>
-
-    <div class="grid2" style="margin-top:10px;">
-      <div>
-        <label>글꼴</label>
-        <select id="font">
-          <option value="f-blackhan">Black Han Sans (굵직한 임팩트)</option>
-          <option value="f-noto" selected>Noto Sans KR (깔끔한 굵은체)</option>
-          <option value="f-dohyeon">Do Hyeon (둥근 고딕)</option>
-          <option value="f-jua">Jua (귀여운 둥근체)</option>
-          <option value="f-gugi">Gugi (강렬한 캘리)</option>
-          <option value="f-gaegu">Gaegu (손글씨)</option>
-          <option value="f-pen">Nanum Pen (펜글씨)</option>
-        </select>
-      </div>
-      <div>
-        <label>흐르기 속도 <span id="spdLbl" class="pill">보통</span></label>
-        <input type="range" id="spd" min="1" max="5" value="3" />
-      </div>
+    <div class="field" style="margin-top:10px;">
+      <span class="label">글꼴</span>
+      <select id="font">
+        <option value="'Black Han Sans', sans-serif">Black Han Sans (강한 임팩트)</option>
+        <option value="'Noto Sans KR', sans-serif" selected>Noto Sans KR (깔끔)</option>
+        <option value="'Do Hyeon', sans-serif">Do Hyeon (둥근 고딕)</option>
+        <option value="'Jua', sans-serif">Jua (귀여움)</option>
+        <option value="'Gugi', cursive">Gugi (강렬 캘리)</option>
+        <option value="'Gaegu', cursive">Gaegu (손글씨)</option>
+        <option value="'Nanum Pen Script', cursive">Nanum Pen (펜글씨)</option>
+      </select>
     </div>
   </div>
 
   <div class="card">
-    <label>미리보기</label>
-    <div class="preview" id="preview">
-      <div class="inner" id="previewInner"></div>
-    </div>
-    <div class="pillrow" style="margin-top:8px;">
-      <span class="pill">전체화면 시 글자 높이 ≈ 70%</span>
-      <span class="pill">탭 한 번 → 복귀</span>
-      <span class="pill">설정 자동 보존</span>
-    </div>
+    <div class="label">미리보기</div>
+    <div class="preview" id="preview"></div>
   </div>
 
-  <button class="btn" id="goFull">🚀 전체화면으로 보기</button>
-  <div class="footer">github.io 등 정적 호스팅에 그대로 올려서 사용하세요.</div>
+  <button class="btn primary" id="goFull">🚀 전체화면으로 보기</button>
 </div>
 
-<div id="stage"><div id="stageInner" style="position:absolute;inset:0;"></div></div>
+<div class="hint hide" id="hint">화면을 한 번 탭하면 돌아갑니다</div>
 
 <script>
 const EXAMPLES = {
-  edutech: [
+  ai: [
     "에듀테크 AI 최고!!",
-    "AI로 여는 미래 교실, 에듀테크 파이팅!",
-    "도전과 열정! 에듀테크AI(고) 분임 1등!",
-    "코드 한 줄, 미래 한 걸음 🚀"
+    "AI로 미래교육 선도! 에듀테크AI(고) 파이팅!",
+    "코딩으로 빛나는 우리, 에듀테크AI(고)!",
+    "도전 또 도전! 에듀테크AI(고) 열정 폭발 🔥"
   ],
   math: [
-    "수학은 즐거움! 수학 분임 화이팅!",
-    "공식보다 빛나는 우리의 도전 ✨",
-    "정답보다 멋진 풀이 과정! 수학 분임 최고!",
-    "한 문제 한 문제, 함께라서 즐겁다!"
+    "수학 분임 파이팅!!",
+    "공식보다 뜨거운 열정, 수학 분임!",
+    "정답을 향한 도전! 수학 분임 최고 💯",
+    "논리로 무장한 우리, 수학 분임 GO!"
   ]
 };
 
 const $ = s => document.querySelector(s);
-const state = {
-  group: 'edutech',
-  fx: 'flow',
-  fg: '#ffe14d',
-  bg: '#000000',
-  font: 'f-noto',
-  spd: 3,
-  msg: '에듀테크 AI 최고!!'
-};
+const app = $('#app');
+const preview = $('#preview');
+const msgEl = $('#msg');
+const exBox = $('#examples');
+const hint = $('#hint');
 
-// 분임 선택
-$('#groupSeg').addEventListener('click', e=>{
-  const b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#groupSeg button').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');
-  state.group = b.dataset.g;
-  renderExamples();
+let team = 'ai';
+let fx = 'marquee';
+
+// 분임 버튼
+document.querySelectorAll('[data-team]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-team]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    team = b.dataset.team;
+    renderExamples();
+  });
+});
+
+// 효과 버튼
+document.querySelectorAll('.fx').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.fx').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    fx = b.dataset.fx;
+    render();
+  });
 });
 
 function renderExamples(){
-  const wrap = $('#examples');
-  wrap.innerHTML = '';
-  EXAMPLES[state.group].forEach(t=>{
-    const btn = document.createElement('button');
-    btn.textContent = t;
-    btn.addEventListener('click', ()=>{
-      $('#msg').value = t;
-      state.msg = t;
-      updatePreview();
-    });
-    wrap.appendChild(btn);
+  exBox.innerHTML = '';
+  EXAMPLES[team].forEach(t=>{
+    const b = document.createElement('button');
+    b.className='ex';
+    b.textContent=t;
+    b.addEventListener('click',()=>{ msgEl.value = t; render(); });
+    exBox.appendChild(b);
   });
 }
 renderExamples();
 
-// 효과
-$('#fxSeg').addEventListener('click', e=>{
-  const b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('#fxSeg button').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');
-  state.fx = b.dataset.fx;
-  updatePreview();
+// 옵션 변경 시 즉시 반영
+['#msg','#fg','#bg','#speed','#font'].forEach(sel=>{
+  document.querySelector(sel).addEventListener('input', render);
 });
 
-// 입력
-$('#msg').addEventListener('input', e=>{ state.msg = e.target.value; updatePreview(); });
-$('#fg').addEventListener('input', e=>{ state.fg = e.target.value; updatePreview(); });
-$('#bg').addEventListener('input', e=>{ state.bg = e.target.value; updatePreview(); });
-$('#font').addEventListener('change', e=>{ state.font = e.target.value; updatePreview(); });
-$('#spd').addEventListener('input', e=>{
-  state.spd = +e.target.value;
-  const labels = ['','매우 느림','느림','보통','빠름','매우 빠름'];
-  $('#spdLbl').textContent = labels[state.spd];
-  updatePreview();
-});
+// === 핵심: stage 렌더링 ===
+function buildStage(container, fullscreen){
+  const text = (msgEl.value || ' ').trim() || ' ';
+  const fg = $('#fg').value;
+  const bg = $('#bg').value;
+  const font = $('#font').value;
+  const speed = parseInt($('#speed').value, 10); // px/sec
 
-// 폰트 크기 이진 탐색 — 텍스트가 컨테이너 안에 들어가는 최대 크기
-function fitFontSize(el, cw, ch, maxPx){
-  let lo=10, hi=maxPx, best=10;
-  while(lo<=hi){
-    const mid = (lo+hi) >> 1;
-    el.style.fontSize = mid + 'px';
-    if (el.scrollWidth <= cw && el.scrollHeight <= ch){ best = mid; lo = mid+1; }
-    else hi = mid-1;
-  }
-  el.style.fontSize = best + 'px';
-  return best;
-}
-
-// 화면 렌더링 (미리보기 + 전체화면 공용)
-function renderInto(container, isFull){
-  const cw = container.clientWidth;
-  const ch = container.clientHeight;
-  if (cw === 0 || ch === 0) return;
-
-  container.style.background = state.bg;
+  container.style.background = bg;
   container.innerHTML = '';
 
-  const txt = state.msg || ' ';
+  if(fx === 'marquee'){
+    // 흐르기: 오른쪽 밖에서 왼쪽 밖으로 이동, 사라진 후 2초 정지, 반복
+    const wrap = document.createElement('div');
+    wrap.className = 'marquee';
+    const track = document.createElement('span');
+    track.className = 'track';
+    track.textContent = text;
+    track.style.color = fg;
+    track.style.fontFamily = font;
+    wrap.appendChild(track);
+    container.appendChild(wrap);
 
-  if (state.fx === 'flow'){
-    // 한 줄로 합치기 (흐르기는 한 줄로 흐르는 것이 자연스러움)
-    const oneLine = txt.replace(/\s*\n\s*/g,' ');
+    // 글자 높이: 미리보기/전체화면 모두 컨테이너 높이의 70%
+    requestAnimationFrame(()=>{
+      const ch = container.clientHeight;
+      const cw = container.clientWidth;
+      const targetH = ch * 0.70;
+      // 폰트 사이즈를 line-height 1 기준으로 targetH로 (대략 0.78 보정)
+      track.style.fontSize = Math.max(10, Math.floor(targetH / 0.95)) + 'px';
 
-    const marquee = document.createElement('div');
-    marquee.className = 'marquee';
-    const track = document.createElement('div');
-    track.className = 'track ' + state.font;
-    track.textContent = oneLine;
-    track.style.color = (state.fx==='rainbow' ? '' : state.fg);
-    marquee.appendChild(track);
-    container.appendChild(marquee);
+      // 한 사이클 거리 = 컨테이너폭 + 텍스트폭 (오른쪽 밖 → 왼쪽 밖)
+      const tw = track.getBoundingClientRect().width;
+      const distance = cw + tw;
+      const moveSec = distance / speed;
+      const pauseSec = 2; // 사라진 후 2초 정지
+      const totalSec = moveSec + pauseSec;
+      const endPct = (moveSec / totalSec) * 100;
 
-    // 폰트 크기: 전체화면이면 높이의 70%, 미리보기는 60%
-    const targetH = Math.floor(ch * (isFull ? 0.70 : 0.60));
-    track.style.fontSize = targetH + 'px';
+      // 동적 keyframes 주입
+      const animName = 'mq_' + Math.random().toString(36).slice(2,8);
+      const styleEl = document.createElement('style');
+      styleEl.textContent = `
+        @keyframes ${animName}{
+          0%      { transform: translateX(${cw}px); }
+          ${endPct.toFixed(3)}% { transform: translateX(${-tw}px); }
+          100%    { transform: translateX(${-tw}px); }
+        }
+      `;
+      container.appendChild(styleEl);
+      // 즉시 시작 - 초기 위치를 강제로 오른쪽 밖에 두고 다음 프레임에서 애니메이션 시작
+      track.style.transform = `translateX(${cw}px)`;
+      // 강제 reflow → 애니메이션이 0%부터 즉시 시작되도록
+      void track.offsetWidth;
+      track.style.animation = `${animName} ${totalSec.toFixed(3)}s linear infinite`;
+      track.style.animationDelay = '0s';
+    });
 
-    // 속도 계산: 1=느림 ~ 5=빠름 (픽셀/초)
-    const pxPerSec = [0, 80, 140, 220, 320, 460][state.spd];
-    // 트랙 폭 측정
-    const trackW = track.scrollWidth;
-    // 이동 총 거리 = 트랙폭(오른쪽 밖→왼쪽 밖) + 무대폭 = trackW + cw
-    // 그러나 keyframe 은 100%(=trackW) 만큼 이동 후 -100%(=다시 trackW). 실제 이동 거리 ≈ 2*trackW + cw 까진 아니고
-    // translate(100%) → translate(-100%) 이므로 트랙 자체 기준 200% 이동 = 2 * trackW
-    const moveDist = 2 * trackW;
-    const moveSec = moveDist / pxPerSec;
-    const pauseSec = 2; // 끝나고 2초 대기
-    const totalSec = moveSec + pauseSec;
-    const endPct = (moveSec / totalSec) * 100;
+  } else {
+    // 깜빡임 / 무지개 / 고정: 화면(또는 미리보기)에 글씨 다 보이게
+    const wrap = document.createElement('div');
+    wrap.className = 'stage';
+    const span = document.createElement('span');
+    span.className = 'text';
+    if(fx === 'blink') span.classList.add('blink');
+    if(fx === 'rainbow') span.classList.add('rainbow');
+    span.textContent = text;
+    span.style.color = (fx === 'rainbow') ? '' : fg;
+    span.style.fontFamily = font;
+    wrap.appendChild(span);
+    container.appendChild(wrap);
 
-    // 동적 keyframes 주입 (퍼센트 변수 트릭 대신 직접 stylesheet 변경)
-    const styleId = 'mq-style-' + (isFull ? 'full' : 'prev');
-    let styleEl = document.getElementById(styleId);
-    if (!styleEl){
-      styleEl = document.createElement('style');
-      styleEl.id = styleId;
-      document.head.appendChild(styleEl);
-    }
-    const animName = 'marquee_' + (isFull?'full':'prev');
-    styleEl.textContent = `
-      @keyframes ${animName}{
-        0% { transform: translate(100%,-50%); }
-        ${endPct.toFixed(3)}% { transform: translate(-100%,-50%); }
-        100% { transform: translate(-100%,-50%); }
-      }`;
-    track.style.animation = `${animName} ${totalSec.toFixed(2)}s linear infinite`;
-  }
-  else {
-    // 깜빡임 / 무지개 / 고정 — 텍스트가 화면 안에 모두 보이도록 폰트 크기 자동 산정
-    const inner = document.createElement('div');
-    inner.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2%;';
-    const span = document.createElement('div');
-    span.className = 'text ' + state.font;
-    if (state.fx === 'rainbow') span.classList.add('rainbow');
-    else span.style.color = state.fg;
-    if (state.fx === 'blink') span.classList.add('blink');
-    span.textContent = txt;
-    inner.appendChild(span);
-    container.appendChild(inner);
-
-    // 사용 가능 영역
-    const padW = cw * 0.04;
-    const padH = ch * 0.04;
-    const availW = cw - padW;
-    const availH = ch - padH;
-
-    // 전체화면이면 글자 높이 70%를 우선 시도, 안 되면 줄여서라도 다 보이게
-    const targetMax = Math.floor( (isFull ? availH * 1.0 : availH) ); // 상한
-    const fitted = fitFontSize(span, availW, availH, targetMax);
-
-    // 전체화면일 때 한 줄짜리 문구라면 70% 높이를 강제 적용 (다 보이는 한도 내)
-    if (isFull && !/\n/.test(txt)){
-      const target70 = Math.floor(ch * 0.70);
-      // 70% 적용해도 가로/세로 안에 들어가는지 검사
-      span.style.fontSize = target70 + 'px';
-      if (span.scrollWidth > availW || span.scrollHeight > availH){
-        span.style.fontSize = fitted + 'px'; // 못 들어가면 fit 값 사용
+    // 폰트 크기 자동 산정
+    requestAnimationFrame(()=>{
+      const cw = container.clientWidth - 16;
+      const ch = container.clientHeight;
+      // 전체화면이면 우선 높이의 70%로 시도, 안 들어가면 줄임
+      let lo = 8, hi = fullscreen ? Math.floor(ch * 1.2) : Math.floor(ch);
+      let best = lo;
+      while(lo <= hi){
+        const mid = (lo + hi) >> 1;
+        span.style.fontSize = mid + 'px';
+        if(span.scrollWidth <= cw && span.scrollHeight <= ch){
+          best = mid; lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
       }
-    }
+      if(fullscreen){
+        // 전체화면: 가능하면 높이 70%에 맞추되, 화면을 넘지 않도록
+        const target70 = Math.floor(ch * 0.70);
+        span.style.fontSize = Math.min(best, target70 > best ? best : target70) + 'px';
+        // 다시 검증: 70% 적용시 가로 넘치면 best로 회귀
+        if(span.scrollWidth > cw || span.scrollHeight > ch){
+          span.style.fontSize = best + 'px';
+        } else if (target70 <= best) {
+          span.style.fontSize = target70 + 'px';
+        } else {
+          span.style.fontSize = best + 'px';
+        }
+      } else {
+        span.style.fontSize = best + 'px';
+      }
+    });
   }
 }
 
-function updatePreview(){
-  renderInto($('#previewInner'), false);
+function render(){
+  buildStage(preview, false);
 }
 
-// 전체화면
+// 폰트 로딩 후 다시 그리기 (크기 계산 정확하도록)
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(()=>render());
+}
+
+// 첫 렌더
+render();
+window.addEventListener('resize', ()=>{
+  render();
+  if(fsEl){ buildStage(fsEl, true); }
+});
+window.addEventListener('orientationchange', ()=>{
+  setTimeout(()=>{ render(); if(fsEl) buildStage(fsEl, true); }, 200);
+});
+
+// === 전체화면 ===
+let fsEl = null;
 let wakeLock = null;
-async function requestWake(){
+
+async function enterFullscreen(){
+  fsEl = document.createElement('div');
+  fsEl.className = 'fullscreen';
+  document.body.appendChild(fsEl);
+  app.classList.add('hide');
+  hint.classList.remove('hide');
+  setTimeout(()=>hint.classList.add('hide'), 2500);
+
+  buildStage(fsEl, true);
+
+  // Fullscreen API 시도 (실패해도 CSS 전체화면은 동작)
   try{
-    if ('wakeLock' in navigator){
+    if(document.documentElement.requestFullscreen){
+      await document.documentElement.requestFullscreen();
+    } else if(document.documentElement.webkitRequestFullscreen){
+      document.documentElement.webkitRequestFullscreen();
+    }
+  }catch(e){}
+
+  // Wake Lock
+  try{
+    if('wakeLock' in navigator){
       wakeLock = await navigator.wakeLock.request('screen');
     }
   }catch(e){}
-}
-function releaseWake(){ try{ wakeLock && wakeLock.release(); wakeLock=null; }catch(e){} }
 
-function enterFull(){
-  const stage = $('#stage');
-  stage.classList.add('on');
-  const inner = $('#stageInner');
-  // 약간 지연 후 측정 (display flex 적용 대기)
-  requestAnimationFrame(()=>{
-    renderInto(inner, true);
-  });
-  // 브라우저 fullscreen 도 시도
-  const el = document.documentElement;
-  if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
-  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-  requestWake();
-}
-function exitFull(){
-  $('#stage').classList.remove('on');
-  if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
-  else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
-  releaseWake();
+  // 한 번 탭하면 종료 — 진입 직후 즉시 닫히지 않게 약간 지연
+  setTimeout(()=>{
+    fsEl.addEventListener('click', exitFullscreen, { once:true });
+    fsEl.addEventListener('touchstart', exitFullscreen, { once:true, passive:true });
+  }, 250);
 }
 
-$('#goFull').addEventListener('click', enterFull);
-$('#stage').addEventListener('click', exitFull);
-$('#stage').addEventListener('touchstart', e=>{ e.preventDefault(); exitFull(); }, {passive:false});
-
-// 회전/리사이즈 시 다시 렌더
-let resizeT = null;
-function onResize(){
-  clearTimeout(resizeT);
-  resizeT = setTimeout(()=>{
-    updatePreview();
-    if ($('#stage').classList.contains('on')) renderInto($('#stageInner'), true);
-  }, 80);
+async function exitFullscreen(){
+  try{
+    if(document.fullscreenElement && document.exitFullscreen){
+      await document.exitFullscreen();
+    } else if(document.webkitFullscreenElement && document.webkitExitFullscreen){
+      document.webkitExitFullscreen();
+    }
+  }catch(e){}
+  try{ if(wakeLock){ await wakeLock.release(); wakeLock = null; } }catch(e){}
+  if(fsEl){ fsEl.remove(); fsEl = null; }
+  app.classList.remove('hide');
+  hint.classList.add('hide');
 }
-window.addEventListener('resize', onResize);
-window.addEventListener('orientationchange', onResize);
 
-// 초기
-window.addEventListener('load', ()=>{
-  // 폰트 로드 후 다시 렌더 (정확한 크기 계산을 위해)
-  if (document.fonts && document.fonts.ready){
-    document.fonts.ready.then(()=> updatePreview());
-  }
-  updatePreview();
+$('#goFull').addEventListener('click', enterFullscreen);
+
+// 시스템 ESC/뒤로가기로 풀스크린 빠져나갔을 때 복귀
+document.addEventListener('fullscreenchange', ()=>{
+  if(!document.fullscreenElement && fsEl){ exitFullscreen(); }
 });
-updatePreview();
 </script>
 </body>
 </html>
