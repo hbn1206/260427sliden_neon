@@ -1,371 +1,389 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#000000">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
 <title>📣 응원 문구 LED</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0; padding: 0;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
-    background: #0b0f1a; color: #fff;
-    overscroll-behavior: none;
-  }
-  body { min-height: 100vh; min-height: 100dvh; }
+  html, body { margin:0; padding:0; height:100%; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background:#0f172a; color:#e2e8f0; overflow-x:hidden; }
+  body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 
   /* ===== 설정 화면 ===== */
-  #setup {
-    padding: 16px 14px 40px;
-    max-width: 560px; margin: 0 auto;
-  }
-  h1 {
-    font-size: 22px; margin: 8px 0 14px;
-    text-align: center;
-    background: linear-gradient(90deg,#ff5e7e,#ffd166,#06d6a0,#4cc9f0);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
-  }
-  .group { margin-bottom: 16px; }
-  .label { font-size: 13px; color: #9aa4bf; margin-bottom: 8px; font-weight:600;}
+  .setup { padding: 16px; max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 4px 0 12px; text-align:center; }
+  .card { background:#1e293b; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+  .label { font-size: 13px; color:#94a3b8; margin-bottom: 8px; font-weight:600; }
 
-  /* 분임 선택 */
-  .tabs { display: flex; gap: 8px; }
-  .tab {
-    flex: 1; padding: 12px 8px; border-radius: 12px;
-    background: #1a2238; color: #cfd5e8; font-weight: 700; font-size: 14px;
-    border: 2px solid transparent; text-align: center; cursor: pointer;
-    transition: all .2s;
-  }
-  .tab.active { background: linear-gradient(135deg,#4cc9f0,#7209b7); color:#fff; border-color:#fff3;}
+  .group-tabs { display:flex; gap:8px; margin-bottom: 10px; }
+  .group-tabs button { flex:1; padding: 10px; border:none; border-radius:10px; background:#334155; color:#e2e8f0; font-size:14px; font-weight:600; cursor:pointer; }
+  .group-tabs button.active { background: linear-gradient(135deg,#3b82f6,#8b5cf6); color:#fff; }
 
-  /* 예시 문구 */
-  .examples { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .ex {
-    background: #151c30; border: 1px solid #232b47;
-    color: #e7ecf8; padding: 12px 10px; border-radius: 12px;
-    font-size: 14px; font-weight: 600; cursor: pointer;
-    text-align: center; min-height: 64px;
-    display:flex; align-items:center; justify-content:center;
-    transition: transform .1s;
-  }
-  .ex:active { transform: scale(0.97); background:#1f2848;}
+  .examples { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+  .examples button { padding: 12px 8px; border:1px solid #475569; border-radius:10px; background:#0f172a; color:#e2e8f0; font-size:14px; font-weight:600; cursor:pointer; min-height: 56px; line-height:1.3; }
+  .examples button:active { transform: scale(0.97); background:#1e293b; }
 
-  /* 텍스트 입력 */
-  textarea {
-    width: 100%; min-height: 70px; resize: vertical;
-    background: #0f1426; color:#fff; border: 1px solid #2a335a;
-    border-radius: 12px; padding: 12px; font-size: 16px;
-    font-family: inherit;
-  }
+  textarea { width:100%; min-height: 80px; padding:12px; border-radius:10px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:16px; resize:vertical; font-family:inherit; }
 
-  /* 옵션 행 */
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .opt label { font-size: 12px; color:#9aa4bf; display:block; margin-bottom:4px;}
-  .opt select, .opt input[type="color"] {
-    width:100%; padding:10px; border-radius:10px;
-    background:#0f1426; color:#fff; border:1px solid #2a335a;
-    font-size: 14px;
-  }
-  .opt input[type="color"] { height: 42px; padding: 4px; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .row > div { flex:1; min-width: 120px; }
+  input[type="color"] { width: 100%; height: 44px; border:none; border-radius:8px; background:transparent; cursor:pointer; }
+  select, input[type="range"] { width:100%; padding:10px; border-radius:8px; border:1px solid #475569; background:#0f172a; color:#fff; font-size:14px; }
+  input[type="range"] { padding:0; }
 
-  /* 미리보기 */
-  .preview {
-    margin-top: 6px;
-    height: 140px; border-radius: 14px; overflow: hidden;
-    background: #000; border: 1px solid #2a335a;
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-  }
-  .preview .pv-text {
-    font-weight: 900; white-space: nowrap;
-    letter-spacing: 1px;
-  }
+  .preview-wrap { height: 120px; border-radius: 12px; overflow: hidden; border:2px solid #475569; background:#000; position:relative; }
 
-  /* 버튼 */
-  .go {
-    margin-top: 14px; width: 100%; padding: 16px;
-    border: 0; border-radius: 14px; cursor: pointer;
-    background: linear-gradient(90deg,#ff006e,#fb5607,#ffbe0b);
-    color:#fff; font-size: 18px; font-weight: 800;
-    box-shadow: 0 8px 24px #ff006e44;
-  }
-  .hint { text-align:center; color:#7d87a6; font-size:12px; margin-top:8px;}
+  .go-btn { width:100%; padding: 18px; font-size: 18px; font-weight:800; border:none; border-radius: 14px; background: linear-gradient(135deg,#ef4444,#f59e0b); color:#fff; cursor:pointer; box-shadow: 0 4px 14px rgba(239,68,68,0.4); }
+  .go-btn:active { transform: scale(0.98); }
 
-  /* ===== 전체화면 모드 ===== */
-  #stage {
-    position: fixed; inset: 0;
-    display: none;
-    align-items: center; justify-content: center;
-    background: #000; overflow: hidden; z-index: 9999;
+  .hint { font-size:12px; color:#94a3b8; text-align:center; margin-top: 8px; }
+
+  /* ===== 전체화면 무대 ===== */
+  .stage {
+    position: fixed; inset: 0; background:#000;
+    display:none; align-items:center; justify-content:center;
+    overflow:hidden; z-index: 9999; cursor:pointer;
   }
-  #stage.on { display: flex; }
-  #stage .marquee {
-    white-space: nowrap;
-    font-weight: 900;
+  .stage.show { display:flex; }
+
+  /* 흐르기: 끊김없이 반복 */
+  .marquee {
+    display: flex; white-space: nowrap;
     will-change: transform;
+    animation: marquee linear infinite;
+  }
+  .marquee span {
+    padding-right: 0.6em; /* 단어 사이 간격 */
+    font-weight: 900;
     line-height: 1;
   }
-  /* 흐름 애니메이션 */
-  @keyframes scrollLeft {
-    from { transform: translateX(100vw); }
-    to   { transform: translateX(-100%); }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); } /* 정확히 절반 이동 → 무한 반복 */
   }
-  /* 깜빡임 */
-  @keyframes blink {
-    0%, 49% { opacity: 1; }
-    50%,100% { opacity: 0.15; }
+
+  /* 정적 텍스트 (깜빡임/무지개/고정) - 한 화면에 다 보이기 */
+  .static {
+    width: 100%; height: 100%;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding: 2vmin;
   }
-  /* 무지개 */
+  .static .text {
+    font-weight: 900;
+    line-height: 1.05;
+    word-break: keep-all;
+    white-space: pre-wrap;
+  }
+
+  .blink { animation: blink 0.7s steps(2, start) infinite; }
+  @keyframes blink { to { visibility: hidden; } }
+
+  .rainbow { animation: rainbow 3s linear infinite; }
   @keyframes rainbow {
-    0%{color:#ff0066} 16%{color:#ff9900} 33%{color:#ffee00}
-    50%{color:#33ff66} 66%{color:#33ccff} 83%{color:#cc66ff} 100%{color:#ff0066}
-  }
-  .exit-tip {
-    position: absolute; bottom: 12px; left: 0; right: 0;
-    text-align: center; font-size: 11px; color: #ffffff44;
-    pointer-events: none;
+    0%   { color:#ff3b30; }
+    16%  { color:#ff9500; }
+    33%  { color:#ffcc00; }
+    50%  { color:#34c759; }
+    66%  { color:#00c7be; }
+    83%  { color:#5856d6; }
+    100% { color:#ff3b30; }
   }
 </style>
 </head>
 <body>
 
-<div id="setup">
+<!-- ====== 설정 화면 ====== -->
+<div class="setup" id="setup">
   <h1>📣 응원 문구 LED</h1>
 
-  <div class="group">
-    <div class="label">1️⃣ 분임 선택</div>
-    <div class="tabs">
-      <div class="tab active" data-team="edu">에듀테크AI(고) 분임</div>
-      <div class="tab" data-team="math">수학 분임</div>
+  <div class="card">
+    <div class="label">분임 선택</div>
+    <div class="group-tabs">
+      <button data-group="edu" class="active" onclick="selectGroup('edu')">에듀테크AI(고)</button>
+      <button data-group="math" onclick="selectGroup('math')">수학 분임</button>
     </div>
-  </div>
-
-  <div class="group">
-    <div class="label">2️⃣ 예시 문구 (탭하여 선택)</div>
+    <div class="label">예시 문구 (탭하면 바로 입력)</div>
     <div class="examples" id="examples"></div>
   </div>
 
-  <div class="group">
-    <div class="label">3️⃣ 직접 입력</div>
-    <textarea id="msg" placeholder="응원 문구를 입력하세요!"></textarea>
+  <div class="card">
+    <div class="label">직접 입력</div>
+    <textarea id="text" placeholder="여기에 응원 문구를 입력하세요!">에듀테크AI 최고! 🔥</textarea>
   </div>
 
-  <div class="group">
-    <div class="label">4️⃣ 옵션</div>
+  <div class="card">
+    <div class="label">효과</div>
     <div class="row">
-      <div class="opt">
-        <label>글자색</label>
-        <input type="color" id="fg" value="#ffe600">
-      </div>
-      <div class="opt">
-        <label>배경색</label>
-        <input type="color" id="bg" value="#000000">
-      </div>
-    </div>
-    <div class="row" style="margin-top:8px;">
-      <div class="opt">
-        <label>효과</label>
+      <div>
         <select id="effect">
-          <option value="scroll">흐르기 (LED)</option>
+          <option value="flow">흐르기 (LED)</option>
           <option value="blink">깜빡임</option>
           <option value="rainbow">무지개</option>
           <option value="static">고정</option>
         </select>
       </div>
-      <div class="opt">
-        <label>속도</label>
+      <div>
         <select id="speed">
-          <option value="14">느리게</option>
-          <option value="9" selected>보통</option>
-          <option value="5">빠르게</option>
+          <option value="20">속도: 느리게</option>
+          <option value="12" selected>속도: 보통</option>
+          <option value="7">속도: 빠르게</option>
+          <option value="4">속도: 매우 빠름</option>
         </select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <div>
+        <div class="label">글자색</div>
+        <input type="color" id="fg" value="#ffeb3b" />
+      </div>
+      <div>
+        <div class="label">배경색</div>
+        <input type="color" id="bg" value="#000000" />
       </div>
     </div>
   </div>
 
-  <div class="group">
-    <div class="label">5️⃣ 미리보기</div>
-    <div class="preview" id="preview">
-      <div class="pv-text" id="pvText">응원 문구를 선택하거나 입력하세요</div>
+  <div class="card">
+    <div class="label">미리보기</div>
+    <div class="preview-wrap" id="previewWrap">
+      <div id="preview" style="width:100%; height:100%;"></div>
     </div>
   </div>
 
-  <button class="go" id="goBtn">🚀 전체화면으로 보기</button>
-  <div class="hint">전체화면에서 화면을 한번 탭하면 돌아옵니다 · 휴대폰을 가로로 돌리세요 📱↔️</div>
+  <button class="go-btn" onclick="enterStage()">🚀 전체화면으로 보기</button>
+  <div class="hint">전체화면에서 아무 곳이나 터치하면 돌아옵니다</div>
 </div>
 
-<!-- 전체화면 스테이지 -->
-<div id="stage">
-  <div class="marquee" id="marquee">텍스트</div>
-  <div class="exit-tip">화면을 탭하면 종료됩니다</div>
-</div>
+<!-- ====== 전체화면 무대 ====== -->
+<div class="stage" id="stage"></div>
 
 <script>
-/* ==== 데이터 ==== */
-const PHRASES = {
-  edu: [
-    "에듀테크AI 최고! 🚀",
-    "AI로 미래교육 선도! 💡",
-    "열정만점 에듀테크 분임! 🔥",
-    "혁신과 도전, 우리가 1등! 🏆"
-  ],
-  math: [
-    "수학 분임 파이팅! ➕✖️",
-    "문제는 풀라고 있는 것! 💯",
-    "수학으로 세상을 풀다! 🧮",
-    "끝까지 가즈아 수학 분임! 🚀"
-  ]
-};
-
-/* ==== DOM ==== */
-const $ = s => document.querySelector(s);
-const tabs = document.querySelectorAll('.tab');
-const exBox = $('#examples');
-const msgEl = $('#msg');
-const fgEl = $('#fg'), bgEl = $('#bg');
-const effectEl = $('#effect'), speedEl = $('#speed');
-const previewEl = $('#preview'), pvText = $('#pvText');
-const stage = $('#stage'), marquee = $('#marquee');
-
-let currentTeam = 'edu';
-
-/* ==== 예시 문구 렌더 ==== */
-function renderExamples(){
-  exBox.innerHTML = '';
-  PHRASES[currentTeam].forEach(t=>{
-    const d = document.createElement('div');
-    d.className = 'ex';
-    d.textContent = t;
-    d.onclick = ()=>{ msgEl.value = t; updatePreview(); };
-    exBox.appendChild(d);
-  });
-}
-
-/* ==== 분임 탭 ==== */
-tabs.forEach(t=>{
-  t.onclick = ()=>{
-    tabs.forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    currentTeam = t.dataset.team;
-    renderExamples();
+  // ===== 예시 문구 =====
+  const PHRASES = {
+    edu: [
+      "에듀테크AI 최고! 🔥",
+      "AI로 미래교육 선도! 🚀",
+      "열정 가득 에듀테크! 💪",
+      "함께라서 더 빛나는 우리! ✨"
+    ],
+    math: [
+      "수학 분임 파이팅! 📐",
+      "문제 해결 1등! 💯",
+      "논리로 세상을 풀다! 🧮",
+      "수학 사랑 영원히! ❤️"
+    ]
   };
-});
 
-/* ==== 미리보기 ==== */
-function fitFont(container, textEl, maxRatio=0.9){
-  // 컨테이너 높이에 맞게 폰트 크기 조절
-  textEl.style.fontSize = '20px';
-  const cw = container.clientWidth, ch = container.clientHeight;
-  let size = Math.floor(ch * maxRatio);
-  textEl.style.fontSize = size + 'px';
-  // 가로 너무 길면 줄임 (미리보기는 한 줄이라 자동 스크롤)
-  return size;
-}
+  let currentGroup = 'edu';
 
-function updatePreview(){
-  const text = (msgEl.value || '응원 문구를 선택하거나 입력하세요').trim();
-  pvText.textContent = text;
-  pvText.style.color = fgEl.value;
-  previewEl.style.background = bgEl.value;
+  // ===== 요소 =====
+  const $ = (id)=>document.getElementById(id);
+  const examplesEl = $('examples');
+  const textEl = $('text');
+  const effectEl = $('effect');
+  const speedEl = $('speed');
+  const fgEl = $('fg');
+  const bgEl = $('bg');
+  const preview = $('preview');
+  const previewWrap = $('previewWrap');
+  const stage = $('stage');
 
-  // 효과 적용 (미리보기에서도)
-  pvText.style.animation = 'none';
-  pvText.style.transform = '';
-  // 폰트 크기
-  fitFont(previewEl, pvText, 0.55);
-
-  const eff = effectEl.value;
-  const dur = parseFloat(speedEl.value);
-  if(eff === 'scroll'){
-    // 미리보기는 좁으니 작게 흐름
-    pvText.style.animation = `scrollLeft ${dur}s linear infinite`;
-  } else if(eff === 'blink'){
-    pvText.style.animation = `blink 1s steps(2, end) infinite`;
-  } else if(eff === 'rainbow'){
-    pvText.style.animation = `rainbow 3s linear infinite`;
+  function selectGroup(g){
+    currentGroup = g;
+    document.querySelectorAll('.group-tabs button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.group===g);
+    });
+    renderExamples();
   }
-}
-
-[msgEl, fgEl, bgEl, effectEl, speedEl].forEach(el=>{
-  el.addEventListener('input', updatePreview);
-  el.addEventListener('change', updatePreview);
-});
-
-/* ==== 전체화면 ==== */
-function fitStageFont(){
-  // 화면 높이에 글씨가 꽉 차도록 (높이 기준)
-  const h = window.innerHeight;
-  // 95%
-  marquee.style.fontSize = Math.floor(h * 0.85) + 'px';
-}
-
-function openStage(){
-  const text = (msgEl.value || PHRASES[currentTeam][0]).trim();
-  marquee.textContent = text;
-  marquee.style.color = fgEl.value;
-  stage.style.background = bgEl.value;
-
-  // 폰트 크기 - 높이 꽉
-  fitStageFont();
-
-  // 효과
-  marquee.style.animation = 'none';
-  // reflow
-  void marquee.offsetWidth;
-  const eff = effectEl.value;
-  const dur = parseFloat(speedEl.value);
-  if(eff === 'scroll'){
-    marquee.style.animation = `scrollLeft ${dur}s linear infinite`;
-  } else if(eff === 'blink'){
-    marquee.style.animation = `blink 0.8s steps(2,end) infinite`;
-  } else if(eff === 'rainbow'){
-    marquee.style.animation = `rainbow 3s linear infinite`;
-  } else {
-    marquee.style.animation = '';
+  function renderExamples(){
+    examplesEl.innerHTML = '';
+    PHRASES[currentGroup].forEach(p=>{
+      const b = document.createElement('button');
+      b.textContent = p;
+      b.onclick = ()=>{ textEl.value = p; updatePreview(); };
+      examplesEl.appendChild(b);
+    });
   }
 
-  stage.classList.add('on');
-
-  // 진짜 fullscreen API 시도 (지원되는 기기에서)
-  const el = document.documentElement;
-  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
-  if(req){ try{ req.call(el); }catch(e){} }
-
-  // 화면 깨우기 (선택)
-  if('wakeLock' in navigator){
-    try{ navigator.wakeLock.request('screen').then(l=>window._wl=l); }catch(e){}
+  // ===== 폰트 크기 자동 계산 =====
+  // 정적(한 화면 다 보이기): 컨테이너 크기에 맞춰 텍스트가 꽉 차도록 이진탐색
+  function fitStaticText(container, textEl, paddingRatio=0.04){
+    const cw = container.clientWidth * (1 - paddingRatio*2);
+    const ch = container.clientHeight * (1 - paddingRatio*2);
+    if (cw<=0 || ch<=0) return;
+    let lo = 8, hi = Math.floor(ch); // 최대 컨테이너 높이
+    let best = lo;
+    textEl.style.fontSize = lo + 'px';
+    while (lo <= hi){
+      const mid = Math.floor((lo+hi)/2);
+      textEl.style.fontSize = mid + 'px';
+      if (textEl.scrollWidth <= cw && textEl.scrollHeight <= ch){
+        best = mid; lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    textEl.style.fontSize = best + 'px';
   }
-}
 
-function closeStage(){
-  stage.classList.remove('on');
-  marquee.style.animation = 'none';
-  if(document.fullscreenElement){
-    try{ document.exitFullscreen(); }catch(e){}
-  } else if(document.webkitFullscreenElement){
-    try{ document.webkitExitFullscreen(); }catch(e){}
+  // 흐르기: 높이의 ~85% 폰트크기로 한 줄 노출
+  function flowFontSize(container){
+    return Math.floor(container.clientHeight * 0.82);
   }
-  if(window._wl){ try{ window._wl.release(); }catch(e){} window._wl=null; }
-}
 
-$('#goBtn').onclick = openStage;
-stage.addEventListener('click', closeStage);
-stage.addEventListener('touchstart', e=>{ e.preventDefault(); closeStage(); }, {passive:false});
+  // ===== 렌더링 =====
+  function render(container, opts){
+    const { text, effect, speed, fg, bg } = opts;
+    container.style.background = bg;
+    container.innerHTML = '';
 
-window.addEventListener('resize', ()=>{
-  if(stage.classList.contains('on')) fitStageFont();
+    const safe = (text||'').trim() || ' ';
+
+    if (effect === 'flow'){
+      // 한 줄로 무한 반복 (translateX -50%)
+      const fs = flowFontSize(container);
+      const wrap = document.createElement('div');
+      wrap.className = 'marquee';
+      wrap.style.fontSize = fs + 'px';
+      wrap.style.color = fg;
+      wrap.style.height = '100%';
+      wrap.style.alignItems = 'center';
+
+      // 화면을 충분히 채울 만큼 반복(컨테이너 너비보다 한 세트가 작으면 반복 횟수↑)
+      const tmp = document.createElement('span');
+      tmp.style.visibility='hidden';
+      tmp.style.position='absolute';
+      tmp.style.fontSize = fs + 'px';
+      tmp.style.fontWeight = 900;
+      tmp.style.whiteSpace = 'nowrap';
+      tmp.textContent = safe + '\u00A0\u00A0\u00A0';
+      document.body.appendChild(tmp);
+      const oneW = tmp.getBoundingClientRect().width;
+      document.body.removeChild(tmp);
+
+      const cw = container.clientWidth;
+      const repeats = Math.max(2, Math.ceil((cw*2) / Math.max(1,oneW)));
+
+      // 절반-절반 구조: 같은 내용 두 세트 → translateX -50% 시 끊김 없음
+      const half = document.createElement('div');
+      half.style.display='flex';
+      for (let i=0;i<repeats;i++){
+        const s = document.createElement('span');
+        s.textContent = safe;
+        half.appendChild(s);
+      }
+      const half2 = half.cloneNode(true);
+      wrap.appendChild(half);
+      wrap.appendChild(half2);
+
+      // 속도: 한 세트 폭만큼 이동하는 시간
+      const setWidth = oneW * repeats;
+      const pxPerSec = 1000 / parseFloat(speed) * 60; // speed 작을수록 빠름
+      const duration = setWidth / pxPerSec;
+      wrap.style.animationDuration = duration.toFixed(2) + 's';
+
+      container.appendChild(wrap);
+    } else {
+      // 정적: 한 화면에 다 보이게
+      const box = document.createElement('div');
+      box.className = 'static';
+      const t = document.createElement('div');
+      t.className = 'text';
+      t.textContent = safe;
+      t.style.color = fg;
+
+      if (effect === 'blink') t.classList.add('blink');
+      if (effect === 'rainbow') t.classList.add('rainbow');
+
+      // 깜빡임 속도 반영
+      if (effect === 'blink'){
+        const dur = (parseFloat(speed)/15).toFixed(2);
+        t.style.animationDuration = dur + 's';
+      }
+
+      box.appendChild(t);
+      container.appendChild(box);
+      // 폰트 자동 맞춤 (DOM 삽입 후 측정)
+      requestAnimationFrame(()=> fitStaticText(container, t));
+    }
+  }
+
+  function getOpts(){
+    return {
+      text: textEl.value,
+      effect: effectEl.value,
+      speed: speedEl.value,
+      fg: fgEl.value,
+      bg: bgEl.value
+    };
+  }
+
+  function updatePreview(){
+    render(preview, getOpts());
+  }
+
+  // ===== 전체화면 진입 =====
+  let wakeLock = null;
+  async function requestWakeLock(){
+    try {
+      if ('wakeLock' in navigator){
+        wakeLock = await navigator.wakeLock.request('screen');
+      }
+    } catch(e){}
+  }
+  function releaseWakeLock(){
+    try { wakeLock && wakeLock.release(); } catch(e){}
+    wakeLock = null;
+  }
+
+  function enterStage(){
+    stage.classList.add('show');
+    render(stage, getOpts());
+    // Fullscreen API
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (req) req.call(el).catch(()=>{});
+    requestWakeLock();
+    // 다음 프레임에 한번 더 그리기 (전체화면 변환 후 크기 반영)
+    setTimeout(()=> render(stage, getOpts()), 250);
+  }
+
+  function exitStage(){
+    stage.classList.remove('show');
+    stage.innerHTML = '';
+    if (document.fullscreenElement || document.webkitFullscreenElement){
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+      if (exit) exit.call(document).catch(()=>{});
+    }
+    releaseWakeLock();
+  }
+
+  // 무대 어디든 터치/클릭 시 복귀
+  stage.addEventListener('click', exitStage);
+  stage.addEventListener('touchstart', (e)=>{ e.preventDefault(); exitStage(); }, {passive:false});
+
+  // 옵션 변경 → 미리보기 갱신
+  ['input','change'].forEach(ev=>{
+    [textEl, effectEl, speedEl, fgEl, bgEl].forEach(el=> el.addEventListener(ev, updatePreview));
+  });
+
+  // 화면 회전/리사이즈 시 무대 다시 그리기
+  window.addEventListener('resize', ()=>{
+    updatePreview();
+    if (stage.classList.contains('show')) render(stage, getOpts());
+  });
+  window.addEventListener('orientationchange', ()=>{
+    setTimeout(()=>{
+      updatePreview();
+      if (stage.classList.contains('show')) render(stage, getOpts());
+    }, 200);
+  });
+
+  // 초기화
+  renderExamples();
   updatePreview();
-});
-window.addEventListener('orientationchange', ()=>{
-  setTimeout(()=>{ if(stage.classList.contains('on')) fitStageFont(); }, 200);
-});
-
-/* 초기화 */
-renderExamples();
-updatePreview();
 </script>
 </body>
 </html>
